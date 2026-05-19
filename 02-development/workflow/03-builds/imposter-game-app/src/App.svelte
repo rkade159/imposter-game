@@ -1,8 +1,10 @@
 <script>
-  // Root component. For now it just renders the placeholder home screen
-  // so we can verify the toolchain end-to-end. Once the screen-state
-  // machine lands, this will switch on a store value from src/lib/game-state.js
-  // and render one of the screens under src/screens/.
+  // Root component. Mounts the global header and the active screen.
+  // For now there's only one screen (setup), so we render it directly.
+  // When more screens land, this is where a {#if}/switch on a `screen`
+  // field added to gameState will pick between SetupScreen, RevealScreen,
+  // PassScreen, DiscussionScreen, and ResultsScreen.
+  import SetupScreen from './screens/SetupScreen.svelte';
 </script>
 
 <main class="app-shell">
@@ -11,18 +13,11 @@
     <p class="tagline">Pass-and-play party game.</p>
   </header>
 
-  <section class="placeholder">
-    <p>Scaffold ready.</p>
-    <p class="muted">
-      Setup, reveal, pass, discussion and results screens will be wired up in
-      upcoming briefs.
-    </p>
-  </section>
+  <SetupScreen />
 </main>
 
 <style>
-  /* Component-scoped layout for the placeholder home screen.
-     Uses the design-system tokens defined in app.css. */
+  /* App shell — caps content width, centres on desktop, keeps mobile padding. */
   .app-shell {
     width: 100%;
     max-width: 1200px;
@@ -40,23 +35,6 @@
 
   .tagline {
     margin: 0;
-    color: var(--text-muted);
-  }
-
-  .placeholder {
-    background-color: var(--bg-surface);
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .placeholder p {
-    margin: 0;
-  }
-
-  .muted {
     color: var(--text-muted);
   }
 </style>

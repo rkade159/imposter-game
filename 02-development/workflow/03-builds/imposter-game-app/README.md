@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser to see the placeholder home screen. The service worker does **not** register in dev mode by design — see "PWA notes" below.
+Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser to see the Setup screen (pick a player count and press Start). The service worker does **not** register in dev mode by design — see "PWA notes" below.
 
 ## Production build
 

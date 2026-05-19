@@ -4,14 +4,14 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 
 ## Status
 
-Scaffold complete. The tech-stack decision is locked, the first brief and spec are written, and the Vite + Svelte PWA scaffold runs and builds cleanly. Next up: the first game-logic feature plan.
+**Setup screen (player count + start) complete** — the first piece of real game logic shipped. The `gameState` store + `resetGame()` foundation is now in place, opening the app shows the real Setup screen instead of the scaffold placeholder, and the production build is clean. Next up: word source loading and the reveal screen.
 
-| Stage | Where | Done? |
-|------|------|------|
-| Plan | [`01-plan/plans/tech-stack-plan-final.md`](01-plan/plans/tech-stack-plan-final.md) | Yes — finalized |
-| Brief | [`02-development/workflow/01-brief/project-scaffold-brief.md`](02-development/workflow/01-brief/project-scaffold-brief.md) | Yes |
-| Spec | [`02-development/workflow/02-specs/project-scaffold-spec.md`](02-development/workflow/02-specs/project-scaffold-spec.md) | Yes |
-| Build | [`02-development/workflow/03-builds/imposter-game-app/`](02-development/workflow/03-builds/imposter-game-app/README.md) | Yes — scaffold complete |
+## Features built
+
+| Feature | Plan | Brief | Spec | Build |
+|---|---|---|---|---|
+| Project scaffold | [tech-stack-plan-final.md](01-plan/plans/tech-stack-plan-final.md) | [brief](02-development/workflow/01-brief/project-scaffold-brief.md) | [spec](02-development/workflow/02-specs/project-scaffold-spec.md) | [imposter-game-app/](02-development/workflow/03-builds/imposter-game-app/README.md) |
+| Setup screen — player count + start | [setup-screen-plan-final.md](01-plan/plans/setup-screen-plan-final.md) | [brief](02-development/workflow/01-brief/setup-screen-brief.md) | [spec](02-development/workflow/02-specs/setup-screen-spec.md) | [SetupScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/SetupScreen.svelte) |
 
 ## Tech Stack
 
