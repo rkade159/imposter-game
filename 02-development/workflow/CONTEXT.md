@@ -38,7 +38,7 @@ the stages that will be taken to get into this workflow pipeline would be:
 |---------------|---------|
 | **Access/Create briefs from plans** | `01-brief/` |
 | **Access/Create specs (contracts) from briefs** | `02-specs/` |
-| **Access/Create features from specifications** | `03-specs/` |
+| **Access/Create features from specifications** | `03-builds/` |
 
 **Don't read everything.** Identify your task, load only what you need.
 
@@ -56,9 +56,9 @@ imposter-game                            ← Root folder
     ├── references/                      ← Reference docs (load per-task)
     │   └── technical-standards.md       ← The standards that need to be instantiated at all times during development
     |
-    └── workflows/                       ← The 4-stage pipeline
+    └── workflow/                        ← The 3-stage pipeline
         ├── CONTEXT.md                   ← Pipeline routing (READ THIS for builds)
-        ├── 01-briefs/                   ← What to build (input from 01-plan)
+        ├── 01-brief/                    ← What to build (input from 01-plan)
         ├── 02-specs/                    ← Technical plan (contract for the build)
         └── 03-builds/                   ← Actual implementations of the contracts
 

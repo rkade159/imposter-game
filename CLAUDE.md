@@ -38,12 +38,12 @@ imposter-game/
 │
 ├── 01-plan/                          ← Planning documents, references, and examples
 │   ├── CONTEXT.md
-│   ├── Imposter-Game-Rules.docx      ← Main rules document
-│   ├── REFERENCES.md                 ← Planning references
 │   │
 │   ├── plans/
 │   │
 │   └── references/
+│       ├── Imposter-Game-Rules.docx  ← Main rules document
+│       ├── REFERENCES.md             ← Planning references
 │       └── examples-of-good-work/
 │           ├── crewmate-screen.png
 │           ├── imposter-screen.png

@@ -1,0 +1,51 @@
+# Imposter Game
+
+A web app version of the party game **Imposter** (pass-and-play, similar to Spyfall). Players pass a single device around — most see a secret word, one or more impostors don't. Group discussion follows; the goal is to identify the impostor(s) without giving the word away.
+
+## Status
+
+In planning / spec stage. The tech-stack decision is locked, the first brief and spec are written, and the actual code scaffold is the next thing to build. No app code exists yet.
+
+| Stage | Where | Done? |
+|------|------|------|
+| Plan | [`01-plan/plans/tech-stack-plan-final.md`](01-plan/plans/tech-stack-plan-final.md) | Yes — finalized |
+| Brief | [`02-development/workflow/01-brief/project-scaffold-brief.md`](02-development/workflow/01-brief/project-scaffold-brief.md) | Yes |
+| Spec | [`02-development/workflow/02-specs/project-scaffold-spec.md`](02-development/workflow/02-specs/project-scaffold-spec.md) | Yes |
+| Build | `02-development/workflow/03-builds/imposter-game-app/` | Not yet |
+
+## Tech Stack
+
+- **Svelte** + **Vite** + plain JavaScript
+- **PWA** from day one (installable, offline-capable)
+- Statically hosted (GitHub Pages, Vercel, or Netlify — TBD)
+- **Capacitor** is the planned path for a future iOS / Android app store port
+
+Full reasoning in [`01-plan/plans/tech-stack-plan-final.md`](01-plan/plans/tech-stack-plan-final.md).
+
+## Repo Layout
+
+This repo isn't a typical app codebase — it's a **workspace system** with three siloed pipelines (planning, development, design). Each silo owns one stage of the work and routes agents in via its own `CONTEXT.md`.
+
+```
+imposter-game/
+├── CLAUDE.md          ← Always-loaded map of the repo
+├── CONTEXT.md         ← Task router (which workspace to go to)
+├── CHECKLIST.md       ← Per-session reminders
+├── README.md          ← You are here
+│
+├── 01-plan/           ← Brainstorming → polished plans
+├── 02-development/    ← Plans → briefs → specs → built code
+└── 03-design/         ← Plans → briefs → specs → built designs
+```
+
+Each workspace has its own `CONTEXT.md` with full per-task load tables — read those before working in a workspace.
+
+## Working in This Repo
+
+Start at [`CONTEXT.md`](CONTEXT.md) — it routes you to the right workspace for your task. The naming and file-placement conventions are documented in [`CLAUDE.md`](CLAUDE.md).
+
+Once the scaffold is built, this section will be expanded with `npm install` / `npm run dev` / `npm run build` instructions for the app itself.
+
+## Long-Term Direction
+
+Web app first. Once the web version is polished, wrap with Capacitor and ship to the iOS App Store and Google Play Store using the same codebase.
