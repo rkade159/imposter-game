@@ -4,14 +4,14 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 
 ## Status
 
-In planning / spec stage. The tech-stack decision is locked, the first brief and spec are written, and the actual code scaffold is the next thing to build. No app code exists yet.
+Scaffold complete. The tech-stack decision is locked, the first brief and spec are written, and the Vite + Svelte PWA scaffold runs and builds cleanly. Next up: the first game-logic feature plan.
 
 | Stage | Where | Done? |
 |------|------|------|
 | Plan | [`01-plan/plans/tech-stack-plan-final.md`](01-plan/plans/tech-stack-plan-final.md) | Yes — finalized |
 | Brief | [`02-development/workflow/01-brief/project-scaffold-brief.md`](02-development/workflow/01-brief/project-scaffold-brief.md) | Yes |
 | Spec | [`02-development/workflow/02-specs/project-scaffold-spec.md`](02-development/workflow/02-specs/project-scaffold-spec.md) | Yes |
-| Build | `02-development/workflow/03-builds/imposter-game-app/` | Not yet |
+| Build | [`02-development/workflow/03-builds/imposter-game-app/`](02-development/workflow/03-builds/imposter-game-app/README.md) | Yes — scaffold complete |
 
 ## Tech Stack
 
@@ -44,7 +44,16 @@ Each workspace has its own `CONTEXT.md` with full per-task load tables — read 
 
 Start at [`CONTEXT.md`](CONTEXT.md) — it routes you to the right workspace for your task. The naming and file-placement conventions are documented in [`CLAUDE.md`](CLAUDE.md).
 
-Once the scaffold is built, this section will be expanded with `npm install` / `npm run dev` / `npm run build` instructions for the app itself.
+## Running the App
+
+The scaffold lives at [`02-development/workflow/03-builds/imposter-game-app/`](02-development/workflow/03-builds/imposter-game-app/). From inside that folder:
+
+- `npm install` — install dependencies (one time)
+- `npm run dev` — local dev server with hot reload
+- `npm run build` — production build to `dist/`
+- `npm run preview` — serve the production build locally (use this to test PWA install)
+
+Full notes and folder map are in the scaffold's [README](02-development/workflow/03-builds/imposter-game-app/README.md).
 
 ## Long-Term Direction
 

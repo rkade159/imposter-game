@@ -1,0 +1,78 @@
+/* Baseline global styles for the app shell.
+ *
+ * Sets the design-system fundamentals from design-system.md:
+ *   - Inter (with system sans-serif fallback) as the body face.
+ *   - Dark theme by default (background, surface, text, accent tokens).
+ *   - 16px minimum body text, 1.5 line-height for readability.
+ *   - Box-sizing reset so padding doesn't blow out widths on small viewports.
+ *
+ * Per-screen and per-component styles live next to those files; this file
+ * only owns the global resets and the colour/typography tokens.
+ */
+
+:root {
+  --bg: #0f0f1a;
+  --bg-surface: #1a1a2e;
+  --text: #e0e0e0;
+  --text-muted: #9a9aae;
+  --accent: #6366f1;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--accent);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+code,
+pre {
+  font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas,
+    monospace;
+}
