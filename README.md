@@ -4,7 +4,7 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 
 ## Status
 
-**Setup screen (player count + start) complete** — the first piece of real game logic shipped. The `gameState` store + `resetGame()` foundation is now in place, opening the app shows the real Setup screen instead of the scaffold placeholder, and the production build is clean. Next up: word source loading and the reveal screen.
+**Setup screen complete** — player count, impostor count, and word-source loading have all shipped. The `gameState` store now carries everything the reveal phase needs (`{ playerCount, impostorCount, wordSource, word }`): the setup screen picks counts, loads a word list from `public/data/` at runtime, and commits a randomly chosen secret word on Start. A reusable `Stepper` component now backs both numeric inputs. Production build is clean. Next up: the reveal screen.
 
 ## Features built
 
@@ -12,6 +12,7 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 |---|---|---|---|---|
 | Project scaffold | [tech-stack-plan-final.md](01-plan/plans/tech-stack-plan-final.md) | [brief](02-development/workflow/01-brief/project-scaffold-brief.md) | [spec](02-development/workflow/02-specs/project-scaffold-spec.md) | [imposter-game-app/](02-development/workflow/03-builds/imposter-game-app/README.md) |
 | Setup screen — player count + start | [setup-screen-plan-final.md](01-plan/plans/setup-screen-plan-final.md) | [brief](02-development/workflow/01-brief/setup-screen-brief.md) | [spec](02-development/workflow/02-specs/setup-screen-spec.md) | [SetupScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/SetupScreen.svelte) |
+| Impostor count + word source | [impostor-count-and-word-source-plan-final.md](01-plan/plans/impostor-count-and-word-source-plan-final.md) | [brief](02-development/workflow/01-brief/impostor-count-and-word-source-brief.md) | [spec](02-development/workflow/02-specs/impostor-count-and-word-source-spec.md) | [SetupScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/SetupScreen.svelte) + [Stepper.svelte](02-development/workflow/03-builds/imposter-game-app/src/components/Stepper.svelte) |
 
 ## Tech Stack
 
