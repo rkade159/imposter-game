@@ -1,25 +1,72 @@
 // Central game state for the screen-based state machine.
 //
-// The setup screen fills this in: how many players, how many impostors, which
-// word source was used, and the secret word picked for the round. That's
-// everything the (still-stubbed) reveal screen needs to do its job. Future
-// features (pass, discussion, results) extend the shape further as they land.
-// The ready-vs-editing distinction in SetupScreen is derived from
-// `playerCount !== null`, so no separate status flag is needed yet.
+// `screen` decides which screen App.svelte renders. The setup screen fills in
+// the round config (counts, word source, secret word) and calls startGame(),
+// which turns that into a per-player roles array and hands off to the
+// reveal → pass loop. revealIndex walks through every player; after the last
+// reveal the loop ends at the discussion screen.
 import { writable } from 'svelte/store';
+import { shuffle } from './shuffle.js';
 
 const initial = {
+  screen: 'setup', // 'setup' | 'reveal' | 'pass' | 'discussion' | 'results'
   playerCount: null,
   impostorCount: null,
   wordSource: null,
   word: null,
+  roles: [], // roles[i] = { isImpostor } for player i; filled in by startGame()
+  revealIndex: 0, // which player is currently revealing
 };
 
 export const gameState = writable({ ...initial });
 
-// Returns the store to its initial shape. Used by the setup screen's
-// "Change settings" button and (later) by a "New game" affordance on the
-// results screen.
+// Build the per-player roles array: impostorCount impostors and the rest
+// crewmates, then shuffle so the impostor positions are random. roles[i] is
+// player i's role. Crewmates "get the word" by reading gameState.word, so only
+// the impostor flag is stored per entry.
+function buildRoles(playerCount, impostorCount) {
+  const roles = [];
+  for (let i = 0; i < playerCount; i++) {
+    roles.push({ isImpostor: i < impostorCount });
+  }
+  return shuffle(roles);
+}
+
+// Start a round: commit the setup config, generate the shuffled roles, and move
+// to the first player's reveal. Called by the setup screen's Start button.
+export function startGame({ playerCount, impostorCount, wordSource, word }) {
+  gameState.set({
+    screen: 'reveal',
+    playerCount,
+    impostorCount,
+    wordSource,
+    word,
+    roles: buildRoles(playerCount, impostorCount),
+    revealIndex: 0,
+  });
+}
+
+// The current player has finished seeing their role. If players remain, go to
+// the pass hand-off; otherwise every player has revealed, so move to discussion.
+export function revealDone() {
+  gameState.update((state) =>
+    state.revealIndex < state.playerCount - 1
+      ? { ...state, screen: 'pass' }
+      : { ...state, screen: 'discussion' }
+  );
+}
+
+// Hand-off complete: advance to the next player and show their reveal.
+export function nextPlayer() {
+  gameState.update((state) => ({
+    ...state,
+    revealIndex: state.revealIndex + 1,
+    screen: 'reveal',
+  }));
+}
+
+// Returns the store to its initial shape (back to setup). Used by the setup
+// screen and by the discussion screen's "Play again" button.
 export function resetGame() {
   gameState.set({ ...initial });
 }

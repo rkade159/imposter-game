@@ -4,7 +4,7 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 
 ## Status
 
-**Setup screen complete** — player count, impostor count, and word-source loading have all shipped. The `gameState` store now carries everything the reveal phase needs (`{ playerCount, impostorCount, wordSource, word }`): the setup screen picks counts, loads a word list from `public/data/` at runtime, and commits a randomly chosen secret word on Start. A reusable `Stepper` component now backs both numeric inputs. Production build is clean. Next up: the reveal screen.
+**Reveal + pass gameplay loop complete** — the app is now playable end-to-end. On Start, roles are assigned with a Fisher–Yates shuffle and the device passes player-to-player: each player privately taps to reveal whether they hold the secret word or are the impostor, then hands off through a neutral pass screen. After the last player the round lands on the discussion screen (with a "Play again" that returns to setup). This is also where **screen routing** landed — a `screen` field on `gameState` drives an `{#if}` ladder in `App.svelte` across Setup → Reveal → Pass → Discussion. Production build is clean. Next up: the discussion phase (timer + voting) and results.
 
 ## Features built
 
@@ -13,6 +13,7 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 | Project scaffold | [tech-stack-plan-final.md](01-plan/plans/tech-stack-plan-final.md) | [brief](02-development/workflow/01-brief/project-scaffold-brief.md) | [spec](02-development/workflow/02-specs/project-scaffold-spec.md) | [imposter-game-app/](02-development/workflow/03-builds/imposter-game-app/README.md) |
 | Setup screen — player count + start | [setup-screen-plan-final.md](01-plan/plans/setup-screen-plan-final.md) | [brief](02-development/workflow/01-brief/setup-screen-brief.md) | [spec](02-development/workflow/02-specs/setup-screen-spec.md) | [SetupScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/SetupScreen.svelte) |
 | Impostor count + word source | [impostor-count-and-word-source-plan-final.md](01-plan/plans/impostor-count-and-word-source-plan-final.md) | [brief](02-development/workflow/01-brief/impostor-count-and-word-source-brief.md) | [spec](02-development/workflow/02-specs/impostor-count-and-word-source-spec.md) | [SetupScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/SetupScreen.svelte) + [Stepper.svelte](02-development/workflow/03-builds/imposter-game-app/src/components/Stepper.svelte) |
+| Reveal + pass gameplay loop | [reveal-pass-screens-plan-final.md](01-plan/plans/reveal-pass-screens-plan-final.md) | [brief](02-development/workflow/01-brief/reveal-pass-screens-brief.md) | [spec](02-development/workflow/02-specs/reveal-pass-screens-spec.md) | [RevealScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/RevealScreen.svelte) + [PassScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/PassScreen.svelte) + [game-state.js](02-development/workflow/03-builds/imposter-game-app/src/lib/game-state.js) |
 
 ## Tech Stack
 

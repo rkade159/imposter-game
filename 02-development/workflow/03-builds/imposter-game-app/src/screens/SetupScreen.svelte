@@ -1,12 +1,10 @@
 <script>
   // Setup screen: the user picks player count, impostor count, and a word
-  // source, then presses Start. Two modes driven by $gameState.playerCount:
-  //   - editing (playerCount === null): the form
-  //   - ready   (playerCount !== null): confirmation + Change settings
-  // Start picks the secret word and commits the full config, so the (stubbed)
-  // reveal screen will have everything it needs.
+  // source, then presses Start. Start picks the secret word and hands the full
+  // config to startGame(), which generates the roles and routes to the reveal
+  // loop — so this screen no longer has a "ready" mode of its own.
   import { onMount } from 'svelte';
-  import { gameState, resetGame } from '../lib/game-state.js';
+  import { startGame } from '../lib/game-state.js';
   import {
     MIN_PLAYERS,
     MAX_PLAYERS,
@@ -77,95 +75,71 @@
   // Auto-load on first render — the source is labelled "Auto-loaded".
   onMount(() => load(selectedSource));
 
-  // Commit the full configuration, picking the secret word now. Guarded by
-  // canStart, so the committed state is always complete and in range.
+  // Start the round: pick the secret word now and hand the full config to
+  // startGame(), which builds the roles and moves to the first reveal. Guarded
+  // by canStart, so the committed state is always complete and in range.
   function start() {
     if (!canStart) return;
-    gameState.set({
+    startGame({
       playerCount: players,
       impostorCount: impostors,
       wordSource: selectedSource,
       word: pickWord(words),
     });
   }
-
-  // Back to editing: reset state, restore defaults, and reload the word source.
-  function changeSettings() {
-    resetGame();
-    players = DEFAULT_PLAYERS;
-    impostors = DEFAULT_IMPOSTORS;
-    selectedSource = DEFAULT_WORD_SOURCE;
-    load(selectedSource);
-  }
 </script>
 
-{#if $gameState.playerCount === null}
-  <!-- Editing mode: pick counts + word source, then press Start. -->
-  <section class="screen">
-    <Stepper
-      label="Total Players:"
-      id="player-count"
-      bind:value={players}
-      min={MIN_PLAYERS}
-      max={MAX_PLAYERS}
-    />
+<!-- Pick counts + word source, then press Start to begin the round. -->
+<section class="screen">
+  <Stepper
+    label="Total Players:"
+    id="player-count"
+    bind:value={players}
+    min={MIN_PLAYERS}
+    max={MAX_PLAYERS}
+  />
 
-    <Stepper
-      label="Number of Impostors:"
-      id="impostor-count"
-      bind:value={impostors}
-      min={MIN_IMPOSTORS}
-      max={maxImpostors}
-    />
+  <Stepper
+    label="Number of Impostors:"
+    id="impostor-count"
+    bind:value={impostors}
+    min={MIN_IMPOSTORS}
+    max={maxImpostors}
+  />
 
-    <div class="source-field">
-      <label class="field-label" for="word-source">Word Source:</label>
-      <select
-        id="word-source"
-        class="source-select"
-        bind:value={selectedSource}
-        on:change={() => load(selectedSource)}
-      >
-        {#each WORD_SOURCES as source}
-          <option value={source.id}>{source.label}</option>
-        {/each}
-      </select>
-    </div>
+  <div class="source-field">
+    <label class="field-label" for="word-source">Word Source:</label>
+    <select
+      id="word-source"
+      class="source-select"
+      bind:value={selectedSource}
+      on:change={() => load(selectedSource)}
+    >
+      {#each WORD_SOURCES as source}
+        <option value={source.id}>{source.label}</option>
+      {/each}
+    </select>
+  </div>
 
-    <!-- Word-load feedback: confirmation, an interim note, or an error. -->
-    {#if loadStatus === 'loaded'}
-      <p class="load-chip">✓ Loaded {words.length} {currentSource.countNoun}</p>
-    {:else if loadStatus === 'loading'}
-      <p class="load-status">Loading {currentSource.countNoun}…</p>
-    {:else}
-      <p class="load-error">
-        Couldn't load {currentSource.countNoun}. Check your connection and try again.
-      </p>
-    {/if}
-
-    <button type="button" class="start-btn" on:click={start} disabled={!canStart}>
-      Start Game
-    </button>
-  </section>
-{:else}
-  <!-- Ready mode: state committed; waiting for the reveal-screen feature. The
-       secret word is intentionally NOT shown here. -->
-  <section class="screen ready">
-    <p class="confirmation">
-      Game ready for {$gameState.playerCount} players,
-      {$gameState.impostorCount}
-      {$gameState.impostorCount === 1 ? 'impostor' : 'impostors'}
-      — reveal screen coming soon.
+  <!-- Word-load feedback: confirmation, an interim note, or an error. -->
+  {#if loadStatus === 'loaded'}
+    <p class="load-chip">✓ Loaded {words.length} {currentSource.countNoun}</p>
+  {:else if loadStatus === 'loading'}
+    <p class="load-status">Loading {currentSource.countNoun}…</p>
+  {:else}
+    <p class="load-error">
+      Couldn't load {currentSource.countNoun}. Check your connection and try again.
     </p>
-    <button type="button" class="secondary-btn" on:click={changeSettings}>
-      Change settings
-    </button>
-  </section>
-{/if}
+  {/if}
+
+  <button type="button" class="start-btn" on:click={start} disabled={!canStart}>
+    Start Game
+  </button>
+</section>
 
 <style>
   /* Setup screen layout — uses the dark-theme tokens from app.css.
-     Stepper styles now live in components/Stepper.svelte. */
+     Stepper styles live in components/Stepper.svelte. */
   .screen {
     background-color: var(--bg-surface);
     border-radius: 12px;
@@ -232,23 +206,5 @@
   .start-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  .confirmation {
-    margin: 0;
-    color: var(--text);
-    font-size: 1rem;
-  }
-
-  /* Secondary action — back to editing. */
-  .secondary-btn {
-    align-self: flex-start;
-    min-height: 40px;
-    padding: 0 16px;
-    border-radius: 8px;
-    border: 1px solid var(--text-muted);
-    background-color: transparent;
-    color: var(--text);
-    cursor: pointer;
   }
 </style>

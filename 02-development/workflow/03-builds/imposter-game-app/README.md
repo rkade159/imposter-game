@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser to see the Setup screen (pick player count, impostor count, and a word source, then press Start). The service worker does **not** register in dev mode by design — see "PWA notes" below.
+Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser: set up a game (player count, impostor count, word source) and press Start, then pass the device around — each player taps to reveal their role (the secret word, or "impostor") before reaching the discussion phase. The service worker does **not** register in dev mode by design — see "PWA notes" below.
 
 ## Production build
 

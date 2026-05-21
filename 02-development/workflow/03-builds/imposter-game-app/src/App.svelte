@@ -1,10 +1,13 @@
 <script>
-  // Root component. Mounts the global header and the active screen.
-  // For now there's only one screen (setup), so we render it directly.
-  // When more screens land, this is where a {#if}/switch on a `screen`
-  // field added to gameState will pick between SetupScreen, RevealScreen,
-  // PassScreen, DiscussionScreen, and ResultsScreen.
+  // Root component. Renders the global header and the active screen.
+  // Which screen shows is driven by gameState.screen — the app is a small
+  // screen-based state machine: setup → reveal ⇄ pass → discussion → results.
+  import { gameState } from './lib/game-state.js';
   import SetupScreen from './screens/SetupScreen.svelte';
+  import RevealScreen from './screens/RevealScreen.svelte';
+  import PassScreen from './screens/PassScreen.svelte';
+  import DiscussionScreen from './screens/DiscussionScreen.svelte';
+  import ResultsScreen from './screens/ResultsScreen.svelte';
 </script>
 
 <main class="app-shell">
@@ -13,7 +16,18 @@
     <p class="tagline">Pass-and-play party game.</p>
   </header>
 
-  <SetupScreen />
+  <!-- One screen at a time, selected by the current game phase. -->
+  {#if $gameState.screen === 'setup'}
+    <SetupScreen />
+  {:else if $gameState.screen === 'reveal'}
+    <RevealScreen />
+  {:else if $gameState.screen === 'pass'}
+    <PassScreen />
+  {:else if $gameState.screen === 'discussion'}
+    <DiscussionScreen />
+  {:else if $gameState.screen === 'results'}
+    <ResultsScreen />
+  {/if}
 </main>
 
 <style>

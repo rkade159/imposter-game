@@ -47,6 +47,8 @@ guess wrong about what matters (producing off-voice content).
 | (If need be) Send the plan | The draft itself | `references/` |
 <!-- | Research only | Nothing from docs/ | Everything — just use Web Search MCP | -->
 
+> ⚠️ **If you load the screenshots in `references/examples-of-good-work/`, read `CORRECTIONS.md` in that same folder first.** It records intentional deviations from the images (two-screen reveal/pass, tap-to-reveal, no "New Game" button, numbered players) and **overrides** the screenshots. This applies to anyone routed here to interpret the references — including a builder pulling them from `02-development`.
+
 ---
 
 ## Folder Structure
@@ -60,6 +62,7 @@ imposter-game/
     │
     └── references/                   ← Reference materials used during planning for more information
         ├── examples-of-good-work/    ← Example screenshots showing strong functionality
+        │   └── CORRECTIONS.md        ← ⚠️ Intentional deviations from the screenshots; READ before building from the images — overrides them
         ├── Imposter-Game-Rules.docx      ← The basic rules document for the Imposter game
         └── REFERENCES.md                 ← Routes to everything within the references folder
 

@@ -7,6 +7,10 @@
 
 See the above images (if you are able to) for how the game should work (functionally speaking, not graphically speaking or in terms of design).
 
+`examples-of-good-work/CORRECTIONS.md`
+
+⚠️ **IMPORTANT — read this before building from the screenshots.** The images show the functional flow, but several details were **intentionally changed** during planning (reveal and pass are two separate screens, the role is tap-to-reveal, there's no "New Game" button on the reveal screens, screens are numbered, etc.). `CORRECTIONS.md` lists every deviation and **takes precedence over the images** — don't "fix" the build to match the screenshots on those points.
+
 ## Relevant links
 See `Imposter-Game-Rules.docx` for the basic rules of the Imposter game.
 
