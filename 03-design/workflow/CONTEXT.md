@@ -44,6 +44,17 @@ the stages that will be taken to get into this workflow pipeline would be:
 
 ---
 
+## Verifying a design build
+
+When a brief, spec, or build includes a checklist to confirm a design renders as
+intended, **write the checklist but do NOT run `npm run dev` (or otherwise launch
+the app) yourself to verify it.** Rehaan runs `npm run dev` and reviews the
+result himself. Agents can't reliably drive the live browser app in this
+environment, so attempting it just wastes time and energy — deliver a clear
+checklist and leave running it to Rehaan.
+
+---
+
 ## Folder Structure
 
 ```

@@ -23,6 +23,16 @@ Replace with your actual standards. This shows the structure.
 - Mobile-responsive unless explicitly scoped as desktop-only
 <!-- - Static deployable preferred (Vercel, Netlify, GitHub Pages) -->
 
+## Verification
+
+- Every feature still needs a "happy path" verification checklist (a smoke test)
+  written into its spec/build — that requirement stands.
+- **The builder does NOT run `npm run dev` (or otherwise launch the app) to
+  perform that verification.** Rehaan runs the app and walks the checklist
+  himself. Agents can't reliably drive the live browser app in this environment,
+  so attempting it just wastes time and energy — write a clear, spec-mapped
+  checklist and leave running it to Rehaan.
+
 ## Skills & Tools for This Workspace (IGNORE for now)
 
 <!--

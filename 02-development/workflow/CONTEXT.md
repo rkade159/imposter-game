@@ -44,6 +44,17 @@ the stages that will be taken to get into this workflow pipeline would be:
 
 ---
 
+## Verifying a build
+
+When a brief, spec, or build includes a smoke-test / verification checklist for a
+new feature, **write the checklist but do NOT run `npm run dev` (or otherwise
+launch the app) yourself to verify it.** Rehaan runs `npm run dev` and walks the
+checklist himself. Agents can't reliably drive the live browser app in this
+environment, so attempting it just wastes time and energy — deliver a clear,
+spec-mapped checklist and leave running it to Rehaan.
+
+---
+
 ## Folder Structure
 
 ```
