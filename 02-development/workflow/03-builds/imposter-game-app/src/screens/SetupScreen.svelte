@@ -4,7 +4,8 @@
   // config to startGame(), which generates the roles and routes to the reveal
   // loop — so this screen no longer has a "ready" mode of its own.
   import { onMount } from 'svelte';
-  import { startGame } from '../lib/game-state.js';
+  import { get } from 'svelte/store';
+  import { gameState, startGame } from '../lib/game-state.js';
   import {
     MIN_PLAYERS,
     MAX_PLAYERS,
@@ -22,9 +23,16 @@
 
   // In-flight values the user is editing, before Start commits them. Each is a
   // number when valid, or null when its field is empty (which disables Start).
-  let players = DEFAULT_PLAYERS;
-  let impostors = DEFAULT_IMPOSTORS;
-  let selectedSource = DEFAULT_WORD_SOURCE;
+  //
+  // Seed from gameState when it already holds a round's config: that's the
+  // "Play again" case, where the same group's settings should come back
+  // pre-filled. On a fresh load those fields are null, so fall back to the
+  // defaults. Read once here — the routing ladder remounts this screen on every
+  // return to setup, so a fresh read each time is correct.
+  const saved = get(gameState);
+  let players = saved.playerCount ?? DEFAULT_PLAYERS;
+  let impostors = saved.impostorCount ?? DEFAULT_IMPOSTORS;
+  let selectedSource = saved.wordSource ?? DEFAULT_WORD_SOURCE;
 
   // Word-loading state. `words` holds the loaded list; `loadStatus` drives the
   // confirmation / error message and gates Start.
@@ -100,7 +108,7 @@
   />
 
   <Stepper
-    label="Number of Impostors:"
+    label="Number of Imposters:"
     id="impostor-count"
     bind:value={impostors}
     min={MIN_IMPOSTORS}

@@ -32,7 +32,7 @@
   {:else if isImpostor}
     <!-- Impostor: never shown the secret word. -->
     <div class="card card-impostor">
-      <p class="card-title">🎭 YOU ARE THE IMPOSTOR!</p>
+      <p class="card-title">🎭 YOU ARE THE IMPOSTER!</p>
       <p class="card-sub">
         You don't know the word. Try to blend in during discussion!
       </p>
@@ -45,7 +45,7 @@
     <div class="card card-crewmate">
       <p class="card-title">📝 THE WORD IS:</p>
       <p class="card-word">"{$gameState.word}"</p>
-      <p class="card-sub">You know the word. Help identify the impostors!</p>
+      <p class="card-sub">You know the word. Help identify the imposters!</p>
     </div>
     <button type="button" class="advance-btn" on:click={revealDone}>
       {advanceLabel}

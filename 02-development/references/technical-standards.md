@@ -11,6 +11,11 @@ Replace with your actual standards. This shows the structure.
 - Prefer standard library solutions over third-party packages when equivalent.
 - Add comments to the code whenever you are coding a new code block 
 
+## Naming & Spelling
+
+- **The role is spelled "imposter" (plural "imposters") in all user-facing text** — UI copy, button labels, headings, microcopy. **Never "impostor".** This is the game's spelling; apply it everywhere a player can read it.
+- Some pre-existing internal identifiers use the older "impostor" spelling (e.g. `isImpostor`, `impostorCount`). Leave them as-is unless a task explicitly calls for a rename; for *new* identifiers, prefer the "imposter" spelling. The user-facing-text rule above is the hard rule — identifier spelling is a soft preference, kept separate to avoid churny renames.
+
 <!-- ## Testing
 
 - Every demo must have at least one "happy path" verification

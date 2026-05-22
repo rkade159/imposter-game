@@ -65,8 +65,31 @@ export function nextPlayer() {
   }));
 }
 
-// Returns the store to its initial shape (back to setup). Used by the setup
-// screen and by the discussion screen's "Play again" button.
+// The discussion is over and the table wants the answer: show the results
+// screen. Only the screen changes — the round data (roles, word) is left intact
+// so ResultsScreen can read who the impostors were and what the word was.
+export function showResults() {
+  gameState.update((state) => ({ ...state, screen: 'results' }));
+}
+
+// Play another round with the SAME group: go back to setup but KEEP the player
+// count, impostor count, and word source so the form comes back pre-filled. The
+// per-round data (roles, revealIndex) and the previous word are cleared — a
+// fresh word is picked when Start is pressed again. (Spreading `initial` resets
+// screen/word/roles/revealIndex, then we restore the three settings.)
+export function playAgain() {
+  gameState.update((state) => ({
+    ...initial,
+    playerCount: state.playerCount,
+    impostorCount: state.impostorCount,
+    wordSource: state.wordSource,
+  }));
+}
+
+// Hard reset: returns the store to its full initial shape (back to setup at
+// defaults, clearing the settings too). No screen calls this after the results
+// feature — playAgain() is the settings-preserving restart — but it's kept for a
+// future Settings menu's "reset to defaults".
 export function resetGame() {
   gameState.set({ ...initial });
 }

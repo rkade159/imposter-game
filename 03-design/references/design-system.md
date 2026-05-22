@@ -39,6 +39,10 @@ Clean, user-friendly. There should not be too much bloat on the screen and it sh
 - Visual hierarchy through size and weight, not just color
 - Dark mode is the default. Light mode is optional.
 
+## Copy & Terminology
+
+- **Spell the role "Imposter" / "imposter"** (plural "Imposters") in every piece of user-facing copy — titles, buttons, body text, microcopy. **Never "impostor".** If you spot "impostor" in an existing screen, treat it as a bug to fix.
+
 ## Quality Floor
 
 Every deliverable must have:

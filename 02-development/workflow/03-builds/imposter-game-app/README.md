@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser: set up a game (player count, impostor count, word source) and press Start, then pass the device around — each player taps to reveal their role (the secret word, or "impostor") before reaching the discussion phase. The service worker does **not** register in dev mode by design — see "PWA notes" below.
+Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser: set up a game (player count, imposter count, word source) and press Start, then pass the device around — each player taps to reveal their role (the secret word, or "imposter"). After everyone has revealed, the discussion screen leads to a results screen that names the imposter(s) and reveals the word, with "Play again" to run another round. The service worker does **not** register in dev mode by design — see "PWA notes" below.
 
 ## Production build
 
