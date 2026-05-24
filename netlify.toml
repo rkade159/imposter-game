@@ -1,0 +1,14 @@
+# Netlify build configuration for the Imposter game.
+#
+# The Svelte/Vite app lives in a subdirectory of this repo, so `base` points
+# Netlify at it. Per Netlify's docs, `command` runs inside `base` and `publish`
+# is resolved relative to `base` — so "dist" below means
+# 02-development/workflow/03-builds/imposter-game-app/dist.
+[build]
+  base    = "02-development/workflow/03-builds/imposter-game-app"
+  command = "npm run build"
+  publish = "dist"
+
+# Vite 6 + Svelte 5 want a modern Node. Pin it so cloud builds match local.
+[build.environment]
+  NODE_VERSION = "20"
