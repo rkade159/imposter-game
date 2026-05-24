@@ -25,12 +25,22 @@
     impostorNumbers.length > 1
       ? `The imposters were ${impostorList}`
       : `The imposter was ${impostorList}`;
+
+  // The hint the imposter(s) saw this round, surfaced for everyone. Trimmed to a
+  // string; an empty result (null / blank / non-string) falls back to an error
+  // message instead of a hint.
+  $: hint = typeof $gameState.hint === 'string' ? $gameState.hint.trim() : '';
 </script>
 
 <section class="screen">
   <p class="title">Results</p>
   <p class="impostors">{heading}</p>
   <p class="word">The word was "{$gameState.word}"</p>
+  {#if hint}
+    <p class="hint">The imposter's hint was "{hint}"</p>
+  {:else}
+    <p class="hint">An error occurred.</p>
+  {/if}
   <button type="button" class="play-again-btn" on:click={playAgain}>
     Play again
   </button>
@@ -68,6 +78,13 @@
     margin: 0;
     font-size: 1.1rem;
     color: var(--text);
+  }
+
+  /* The imposter's hint (or the error fallback), shown to everyone at the end. */
+  .hint {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-muted);
   }
 
   .play-again-btn {

@@ -83,16 +83,22 @@
   // Auto-load on first render — the source is labelled "Auto-loaded".
   onMount(() => load(selectedSource));
 
-  // Start the round: pick the secret word now and hand the full config to
-  // startGame(), which builds the roles and moves to the first reveal. Guarded
-  // by canStart, so the committed state is always complete and in range.
+  // Start the round: pick one entry now and hand the full config to startGame(),
+  // which builds the roles and moves to the first reveal. Guarded by canStart, so
+  // the committed state is always complete and in range.
   function start() {
     if (!canStart) return;
+    // Read word/hint defensively. An entry is normally { word, hint }, but
+    // `?? entry` lets an old-format bare string still yield a usable word, and a
+    // missing hint becomes null — the reveal and results screens then show
+    // "An error occurred." instead of a hint rather than blocking the game.
+    const entry = pickWord(words);
     startGame({
       playerCount: players,
       impostorCount: impostors,
       wordSource: selectedSource,
-      word: pickWord(words),
+      word: entry.word ?? entry,
+      hint: entry.hint ?? null,
     });
   }
 </script>

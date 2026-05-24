@@ -14,6 +14,7 @@ const initial = {
   impostorCount: null,
   wordSource: null,
   word: null,
+  hint: null, // the vague clue shown to the imposter(s); shared by all imposters this round
   roles: [], // roles[i] = { isImpostor } for player i; filled in by startGame()
   revealIndex: 0, // which player is currently revealing
 };
@@ -22,8 +23,9 @@ export const gameState = writable({ ...initial });
 
 // Build the per-player roles array: impostorCount impostors and the rest
 // crewmates, then shuffle so the impostor positions are random. roles[i] is
-// player i's role. Crewmates "get the word" by reading gameState.word, so only
-// the impostor flag is stored per entry.
+// player i's role. Crewmates "get the word" by reading gameState.word and
+// impostors "get the hint" by reading gameState.hint, so only the impostor flag
+// is stored per entry.
 function buildRoles(playerCount, impostorCount) {
   const roles = [];
   for (let i = 0; i < playerCount; i++) {
@@ -34,13 +36,14 @@ function buildRoles(playerCount, impostorCount) {
 
 // Start a round: commit the setup config, generate the shuffled roles, and move
 // to the first player's reveal. Called by the setup screen's Start button.
-export function startGame({ playerCount, impostorCount, wordSource, word }) {
+export function startGame({ playerCount, impostorCount, wordSource, word, hint }) {
   gameState.set({
     screen: 'reveal',
     playerCount,
     impostorCount,
     wordSource,
     word,
+    hint, // travels with the word for the round; the imposter reveal + results read it
     roles: buildRoles(playerCount, impostorCount),
     revealIndex: 0,
   });
@@ -74,9 +77,10 @@ export function showResults() {
 
 // Play another round with the SAME group: go back to setup but KEEP the player
 // count, impostor count, and word source so the form comes back pre-filled. The
-// per-round data (roles, revealIndex) and the previous word are cleared — a
-// fresh word is picked when Start is pressed again. (Spreading `initial` resets
-// screen/word/roles/revealIndex, then we restore the three settings.)
+// per-round data (roles, revealIndex) and the previous word + hint are cleared —
+// a fresh word and hint are picked when Start is pressed again. (Spreading
+// `initial` resets screen/word/hint/roles/revealIndex, then we restore the three
+// settings.)
 export function playAgain() {
   gameState.update((state) => ({
     ...initial,

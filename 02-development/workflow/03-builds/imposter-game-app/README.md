@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser: set up a game (player count, imposter count, word source) and press Start, then pass the device around — each player taps to reveal their role (the secret word, or "imposter"). After everyone has revealed, the discussion screen leads to a results screen that names the imposter(s) and reveals the word, with "Play again" to run another round. The service worker does **not** register in dev mode by design — see "PWA notes" below.
+Vite will print a local URL (typically <http://localhost:5173>). Open it in any modern browser: set up a game (player count, imposter count, word source) and press Start, then pass the device around — each player taps to reveal their role. Crewmates see the secret word; the imposter sees a deliberately vague hint to help them blend in. After everyone has revealed, the discussion screen leads to a results screen that names the imposter(s) and reveals both the word and the imposter's hint, with "Play again" to run another round. The service worker does **not** register in dev mode by design — see "PWA notes" below.
 
 ## Production build
 
@@ -37,7 +37,7 @@ Or serve `dist/` with any static file server.
 | `src/lib/` | Shared logic modules (game state store, word source, shuffle helpers). |
 | `src/screens/` | Top-level screen components driven by the screen state machine (setup, reveal, pass, discussion, results). |
 | `src/components/` | Reusable UI building blocks shared across screens. |
-| `public/data/` | Static word-list JSON shipped alongside the app, fetched at runtime. |
+| `public/data/` | Static `{ word, hint }` JSON decks shipped alongside the app, fetched at runtime. |
 | `public/icons/` | App icons referenced from the PWA manifest. |
 
 ## PWA notes

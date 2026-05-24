@@ -15,6 +15,10 @@
   $: isImpostor = role?.isImpostor === true;
   $: playerNumber = $gameState.revealIndex + 1;
   $: isLastPlayer = $gameState.revealIndex === $gameState.playerCount - 1;
+  // The imposter's hint for the round. Trimmed to a string; an empty result
+  // (null / blank / non-string) means no usable hint, so the card falls back to
+  // an error message instead of blocking the game.
+  $: hint = typeof $gameState.hint === 'string' ? $gameState.hint.trim() : '';
   // Last player has no one to pass to — they continue to discussion instead.
   $: advanceLabel = isLastPlayer
     ? 'Hide & continue to discussion'
@@ -30,11 +34,17 @@
       Tap to reveal your role
     </button>
   {:else if isImpostor}
-    <!-- Impostor: never shown the secret word. -->
+    <!-- Impostor: never shown the secret word, but given a vague hint to blend
+         in. A missing/blank hint degrades to an error message (game continues). -->
     <div class="card card-impostor">
       <p class="card-title">🎭 YOU ARE THE IMPOSTER!</p>
+      {#if hint}
+        <p class="card-hint">Your hint: "{hint}"</p>
+      {:else}
+        <p class="card-hint">An error occurred.</p>
+      {/if}
       <p class="card-sub">
-        You don't know the word. Try to blend in during discussion!
+        You don't know the word — use your hint to blend in during discussion!
       </p>
     </div>
     <button type="button" class="advance-btn" on:click={revealDone}>
@@ -124,6 +134,15 @@
     margin: 0;
     font-size: 1.8rem;
     font-weight: 700;
+  }
+
+  /* The imposter's hint (or the error fallback) — the key info on this card, so
+     it's emphasised like the crewmate's word but kept readable on the red card. */
+  .card-hint {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
   }
 
   .card-sub {
