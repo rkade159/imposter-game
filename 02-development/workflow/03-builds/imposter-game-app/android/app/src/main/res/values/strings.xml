@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Imposter but Better</string>
+    <string name="title_activity_main">Imposter but Better</string>
+    <string name="package_name">com.rehaan.imposter</string>
+    <string name="custom_url_scheme">com.rehaan.imposter</string>
+</resources>

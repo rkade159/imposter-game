@@ -4,7 +4,7 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 
 ## Status
 
-**Playable start to finish** — a full round now runs Setup → Reveal → Pass → Discussion → **Results** → back to Setup. On Start, roles are assigned with a Fisher–Yates shuffle and the device passes player-to-player: each player privately taps to reveal whether they hold the secret word or are the imposter — imposters are shown a deliberately vague hint to help them blend in — then hands off through a neutral pass screen. After everyone has revealed, the discussion screen offers a **"Reveal the imposter(s)"** button (behind a confirmation guard); confirming opens the **Results** screen, which names the imposter(s) by player number and reveals both the secret word and the imposter's hint. **"Play again"** returns to Setup with the previous round's settings pre-filled. **Screen routing** is a `screen` field on `gameState` driving an `{#if}` ladder in `App.svelte`. Production build is clean. Next up: real discussion mechanics (timer + voting) and a Settings menu (e.g. toggling the reveal confirmation or the imposter hint).
+**Playable start to finish** — a full round now runs Setup → Reveal → Pass → Discussion → **Results** → back to Setup. On Start, roles are assigned with a Fisher–Yates shuffle and the device passes player-to-player: each player privately taps to reveal whether they hold the secret word or are the imposter — imposters are shown a deliberately vague hint to help them blend in — then hands off through a neutral pass screen. After everyone has revealed, the discussion screen offers a **"Reveal the imposter(s)"** button (behind a confirmation guard); confirming opens the **Results** screen, which names the imposter(s) by player number and reveals both the secret word and the imposter's hint. **"Play again"** returns to Setup with the previous round's settings pre-filled. **Screen routing** is a `screen` field on `gameState` driving an `{#if}` ladder in `App.svelte`. Production build is clean. The app is also now **wrapped with Capacitor for Android** — the native project is generated and the build is ready to compile into an `.aab` and submit to the Google Play Store (web behaviour is unchanged; see the [runbook](02-development/workflow/03-builds/imposter-game-app/RUNBOOK.md)). Next up: real discussion mechanics (timer + voting), a Settings menu (e.g. toggling the reveal confirmation or the imposter hint), and replacing the placeholder app icon/splash with designed artwork.
 
 ## Features built
 
@@ -16,13 +16,14 @@ A web app version of the party game **Imposter** (pass-and-play, similar to Spyf
 | Reveal + pass gameplay loop | [reveal-pass-screens-plan-final.md](01-plan/plans/reveal-pass-screens-plan-final.md) | [brief](02-development/workflow/01-brief/reveal-pass-screens-brief.md) | [spec](02-development/workflow/02-specs/reveal-pass-screens-spec.md) | [RevealScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/RevealScreen.svelte) + [PassScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/PassScreen.svelte) + [game-state.js](02-development/workflow/03-builds/imposter-game-app/src/lib/game-state.js) |
 | Results screen — reveal + play again | [results-screen-plan-final.md](01-plan/plans/results-screen-plan-final.md) | [brief](02-development/workflow/01-brief/results-screen-brief.md) | [spec](02-development/workflow/02-specs/results-screen-spec.md) | [ResultsScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/ResultsScreen.svelte) + [DiscussionScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/DiscussionScreen.svelte) + [game-state.js](02-development/workflow/03-builds/imposter-game-app/src/lib/game-state.js) |
 | Imposter hint word | [imposter-hint-word-plan-final.md](01-plan/plans/imposter-hint-word-plan-final.md) | [brief](02-development/workflow/01-brief/imposter-hint-word-brief.md) | [spec](02-development/workflow/02-specs/imposter-hint-word-spec.md) | [common-nouns.json](02-development/workflow/03-builds/imposter-game-app/public/data/common-nouns.json) + [RevealScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/RevealScreen.svelte) + [ResultsScreen.svelte](02-development/workflow/03-builds/imposter-game-app/src/screens/ResultsScreen.svelte) |
+| Android Play Store port (Capacitor) | [android-play-store-port-plan-final.md](01-plan/plans/android-play-store-port-plan-final.md) | [brief](02-development/workflow/01-brief/android-play-store-port-brief.md) | [spec](02-development/workflow/02-specs/android-play-store-port-spec.md) | [RUNBOOK.md](02-development/workflow/03-builds/imposter-game-app/RUNBOOK.md) + [native.js](02-development/workflow/03-builds/imposter-game-app/src/lib/native.js) + [android/](02-development/workflow/03-builds/imposter-game-app/android/) |
 
 ## Tech Stack
 
 - **Svelte** + **Vite** + plain JavaScript
 - **PWA** from day one (installable, offline-capable)
-- Statically hosted (GitHub Pages, Vercel, or Netlify — TBD)
-- **Capacitor** is the planned path for a future iOS / Android app store port
+- Statically hosted on **Netlify** (git-connected auto-deploy from `main`)
+- **Capacitor** wraps the app for **Android** (Google Play) — done. iOS deferred (needs a Mac); the codebase stays compatible for later.
 
 Full reasoning in [`01-plan/plans/tech-stack-plan-final.md`](01-plan/plans/tech-stack-plan-final.md).
 
@@ -56,9 +57,10 @@ The scaffold lives at [`02-development/workflow/03-builds/imposter-game-app/`](0
 - `npm run dev` — local dev server with hot reload
 - `npm run build` — production build to `dist/`
 - `npm run preview` — serve the production build locally (use this to test PWA install)
+- `npm run android:open` — build, sync, and open the Android project in Android Studio
 
-Full notes and folder map are in the scaffold's [README](02-development/workflow/03-builds/imposter-game-app/README.md).
+Full notes and folder map are in the scaffold's [README](02-development/workflow/03-builds/imposter-game-app/README.md). Android build, signing, and Play Store submission steps are in the [RUNBOOK](02-development/workflow/03-builds/imposter-game-app/RUNBOOK.md).
 
 ## Long-Term Direction
 
-Web app first. Once the web version is polished, wrap with Capacitor and ship to the iOS App Store and Google Play Store using the same codebase.
+Web app first, then native. The web version ships on Netlify and is now also wrapped with Capacitor for **Android** (Google Play) from the same codebase. **iOS** is deferred until a Mac is available — adding it is one command (`npx cap add ios`) on the existing project, no rewrite.

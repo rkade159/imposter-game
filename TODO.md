@@ -1,1 +1,3 @@
 - Add "design-system.md" to 01-plan/references
+- Replace the placeholder Android app icon/splash with designed artwork (route through 03-design, then `npm run android:assets`)
+- Add a `/privacy` page to the Netlify site (required as the Play Store privacy-policy URL)

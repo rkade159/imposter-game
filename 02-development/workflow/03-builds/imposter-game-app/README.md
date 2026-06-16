@@ -39,6 +39,21 @@ Or serve `dist/` with any static file server.
 | `src/components/` | Reusable UI building blocks shared across screens. |
 | `public/data/` | Static `{ word, hint }` JSON decks shipped alongside the app, fetched at runtime. |
 | `public/icons/` | App icons referenced from the PWA manifest. |
+| `android/` | Generated Capacitor Android project (for the Play Store build). Don't hand-edit web code here — it's synced from `dist/`. |
+| `resources/` | Placeholder source icon/splash for Android asset generation. |
+
+## Android / Play Store
+
+This app is wrapped with **Capacitor** for the Google Play Store. To build and run the
+Android app, sync the latest web build into the native project:
+
+```bash
+npm run android:sync   # vite build + cap sync android
+npm run android:open   # the above, then opens Android Studio
+```
+
+Full publishing and update instructions (Android Studio setup, signing, store listing,
+the release loop) live in **[RUNBOOK.md](RUNBOOK.md)**.
 
 ## PWA notes
 
