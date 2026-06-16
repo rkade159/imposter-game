@@ -7,6 +7,7 @@
   // Each setting is a row backed by the `settings` store, which auto-persists.
   // Adding a future option = one more <Toggle> (or other control) below.
   import { settings } from '../lib/settings.js';
+  import { sessionSettings } from '../lib/session-settings.js';
   import Toggle from '../components/Toggle.svelte';
 
   // Called when the user is done — the parent (SetupScreen) hides this screen.
@@ -22,6 +23,13 @@
       label="Grayscale mode"
       description="Removes all colour so no one can guess the imposter from the screen."
       bind:value={$settings.grayscale}
+    />
+
+    <Toggle
+      id="setting-anti-yusuf"
+      label="Anti-Yusuf Feature"
+      description="No explanation needed here..."
+      bind:value={$sessionSettings.antiYusuf}
     />
   </div>
 

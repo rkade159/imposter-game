@@ -5,7 +5,7 @@
   // loop — so this screen no longer has a "ready" mode of its own.
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { gameState, startGame } from '../lib/game-state.js';
+  import { gameState, startGame, displayName } from '../lib/game-state.js';
   import {
     MIN_PLAYERS,
     MAX_PLAYERS,
@@ -21,12 +21,20 @@
   } from '../lib/word-source.js';
   import Stepper from '../components/Stepper.svelte';
   import SettingsScreen from './SettingsScreen.svelte';
+  import Modal from '../components/Modal.svelte';
+  import { sessionSettings } from '../lib/session-settings.js';
 
   // Whether the Settings screen is showing in place of the setup form. Kept as a
   // local flag (not a route) so this component stays mounted and the in-flight
   // form state below survives opening and closing Settings — see the note on
   // remount-on-return where `saved` is read.
   let showSettings = false;
+
+  // Anti-Yusuf popup state. While the feature is on, pressing Start opens this
+  // dialog (see start()) instead of starting the round; blockedName holds the last
+  // player's name shown in the message.
+  let showBlock = false;
+  let blockedName = '';
 
   // In-flight values the user is editing, before Start commits them. Each is a
   // number when valid, or null when its field is empty (which disables Start).
@@ -110,6 +118,14 @@
   // the committed state is always complete and in range.
   function start() {
     if (!canStart) return;
+    // Anti-Yusuf: while the feature is on, refuse to start and call out the last
+    // player to pass to (index playerCount-1). displayName() gives their typed name
+    // or the "Player N" fallback. Turning the toggle off is the only way past this.
+    if ($sessionSettings.antiYusuf) {
+      blockedName = displayName(names, players - 1);
+      showBlock = true;
+      return;
+    }
     // Read word/hint defensively. An entry is normally { word, hint }, but
     // `?? entry` lets an old-format bare string still yield a usable word, and a
     // missing hint becomes null — the reveal and results screens then show
@@ -202,6 +218,14 @@
     Start Game
   </button>
 </section>
+{/if}
+
+<!-- Anti-Yusuf block: shown when Start is pressed while the feature is on. The
+     popup names the last player; dismissing it returns to setup without starting. -->
+{#if showBlock}
+  <Modal onClose={() => (showBlock = false)}>
+    Ha ha nice try, I'm not going to let {blockedName} cheat by being last and seeing who the imposter is!
+  </Modal>
 {/if}
 
 <style>

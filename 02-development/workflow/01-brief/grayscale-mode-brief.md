@@ -115,6 +115,7 @@ The existing scaffold at `02-development/workflow/03-builds/imposter-game-app/`.
 
 ## Next step
 
-This brief feeds `02-development/workflow/02-specs/grayscale-mode-spec.md` if a
-formal acceptance-criteria spec is wanted; otherwise it is buildable as-is (and was
-built in the same session as this brief).
+This brief fed the build directly (built in the same session as the brief). The
+acceptance-criteria contract was **backfilled** afterwards as
+[grayscale-mode-spec.md](../02-specs/grayscale-mode-spec.md) to complete the paper
+trail.
