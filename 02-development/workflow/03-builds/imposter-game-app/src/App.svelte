@@ -3,11 +3,20 @@
   // Which screen shows is driven by gameState.screen — the app is a small
   // screen-based state machine: setup → reveal ⇄ pass → discussion → results.
   import { gameState } from './lib/game-state.js';
+  import { settings } from './lib/settings.js';
   import SetupScreen from './screens/SetupScreen.svelte';
   import RevealScreen from './screens/RevealScreen.svelte';
   import PassScreen from './screens/PassScreen.svelte';
   import DiscussionScreen from './screens/DiscussionScreen.svelte';
   import ResultsScreen from './screens/ResultsScreen.svelte';
+
+  // Reflect grayscale mode on the <html> element rather than the app shell, so it
+  // covers the whole screen — the page background lives outside .app-shell, so a
+  // class on the shell alone would leave the page edges in colour. Runs on mount
+  // (with the persisted value) and whenever the setting changes.
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('grayscale', $settings.grayscale);
+  }
 </script>
 
 <main class="app-shell">

@@ -23,6 +23,34 @@
   color-scheme: dark;
 }
 
+/* Grayscale mode (Settings → Grayscale mode). The `grayscale` class is set on
+ * <html> (see App.svelte) so the WHOLE screen goes black-and-white — the page
+ * background lives on <body>, outside the app shell, so the override has to sit
+ * at the root to reach it.
+ *
+ * Two parts:
+ *   1. --bg is neutralised here because <body>'s background is the one painted
+ *      area that sits OUTSIDE the shell filter below — without this the page
+ *      edges would stay navy while everything else went gray.
+ *   2. --accent and --error are pinned to the SAME neutral value so the imposter
+ *      and crewmate reveal cards become identical. This is the real anti-leak
+ *      fix: a bare `filter: grayscale(1)` maps red and indigo to DIFFERENT grays
+ *      (the brightness tell survives), so they must start equal.
+ *
+ * Everything else lives inside .app-shell, so the filter there desaturates it
+ * (surfaces, muted text, success/warning, and — crucially — the emoji, which no
+ * token drives). #101010 / #a8a8a8 are the brightness-matched neutral grays.
+ */
+:root.grayscale {
+  --bg: #101010;
+  --accent: #a8a8a8;
+  --error: #a8a8a8;
+}
+
+:root.grayscale .app-shell {
+  filter: grayscale(1);
+}
+
 *,
 *::before,
 *::after {

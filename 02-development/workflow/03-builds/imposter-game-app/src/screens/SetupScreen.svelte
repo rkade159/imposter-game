@@ -20,6 +20,13 @@
     pickWord,
   } from '../lib/word-source.js';
   import Stepper from '../components/Stepper.svelte';
+  import SettingsScreen from './SettingsScreen.svelte';
+
+  // Whether the Settings screen is showing in place of the setup form. Kept as a
+  // local flag (not a route) so this component stays mounted and the in-flight
+  // form state below survives opening and closing Settings — see the note on
+  // remount-on-return where `saved` is read.
+  let showSettings = false;
 
   // In-flight values the user is editing, before Start commits them. Each is a
   // number when valid, or null when its field is empty (which disables Start).
@@ -119,8 +126,19 @@
   }
 </script>
 
+<!-- Settings opens in place of the form; the form's local state is preserved
+     because this component stays mounted underneath. -->
+{#if showSettings}
+  <SettingsScreen onClose={() => (showSettings = false)} />
+{:else}
 <!-- Pick counts + word source, then press Start to begin the round. -->
 <section class="screen">
+  <button
+    type="button"
+    class="settings-btn"
+    on:click={() => (showSettings = true)}
+  >⚙ Settings</button>
+
   <Stepper
     label="Total Players:"
     id="player-count"
@@ -184,6 +202,7 @@
     Start Game
   </button>
 </section>
+{/if}
 
 <style>
   /* Setup screen layout — uses the dark-theme tokens from app.css.
@@ -195,6 +214,20 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+  }
+
+  /* Settings entry — a small ghost button in the top-right of the form. */
+  .settings-btn {
+    align-self: flex-end;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid var(--text-muted);
+    background-color: var(--bg);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
   }
 
   /* Label for the word-source dropdown (matches the steppers' label style). */

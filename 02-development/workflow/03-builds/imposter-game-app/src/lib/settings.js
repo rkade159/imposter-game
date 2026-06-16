@@ -1,0 +1,39 @@
+// App-wide user preferences, persisted across sessions.
+//
+// Mirrors the gameState store pattern (game-state.js) but for settings that
+// outlive a single round and belong in the Settings screen. The store is the
+// single source of truth; it loads from localStorage on startup and writes back
+// on every change, so a toggle the user flips once stays flipped.
+import { writable } from 'svelte/store';
+
+const STORAGE_KEY = 'imposter:settings';
+
+// Defaults for every setting. Adding a future toggle is a one-line change here.
+// load() merges these under the stored value, so a setting added in a later
+// release picks up its default for users who saved settings before it existed,
+// and any unknown/legacy stored keys are simply ignored.
+const defaults = {
+  // Grayscale mode: strips colour from the whole app so no one can infer the
+  // imposter from the red reveal card by glance or reflection. See app.css.
+  grayscale: false,
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? { ...defaults, ...JSON.parse(raw) } : { ...defaults };
+  } catch {
+    // No storage (or corrupt JSON) — fall back to defaults rather than break.
+    return { ...defaults };
+  }
+}
+
+export const settings = writable(load());
+
+// Persist on every change. Guarded so a storage failure (private mode, quota)
+// never throws into the app.
+settings.subscribe((value) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+  } catch {}
+});
