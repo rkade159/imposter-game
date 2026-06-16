@@ -5,6 +5,7 @@
 // single source of truth; it loads from localStorage on startup and writes back
 // on every change, so a toggle the user flips once stays flipped.
 import { writable } from 'svelte/store';
+import { DEFAULT_REVEAL_STYLE } from './reveal-styles.js';
 
 const STORAGE_KEY = 'imposter:settings';
 
@@ -16,6 +17,12 @@ const defaults = {
   // Grayscale mode: strips colour from the whole app so no one can infer the
   // imposter from the red reveal card by glance or reflection. See app.css.
   grayscale: false,
+
+  // Reveal style: which role-reveal animation the reveal screen uses. The set of
+  // values lives in reveal-styles.js; the reveal screen branches on this id and
+  // falls back to the original for anything it doesn't recognise. Persists across
+  // rounds.
+  revealStyle: DEFAULT_REVEAL_STYLE,
 };
 
 function load() {

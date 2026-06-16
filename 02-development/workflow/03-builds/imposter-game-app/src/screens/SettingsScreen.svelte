@@ -8,7 +8,9 @@
   // Adding a future option = one more <Toggle> (or other control) below.
   import { settings } from '../lib/settings.js';
   import { sessionSettings } from '../lib/session-settings.js';
+  import { REVEAL_STYLES } from '../lib/reveal-styles.js';
   import Toggle from '../components/Toggle.svelte';
+  import Select from '../components/Select.svelte';
 
   // Called when the user is done — the parent (SetupScreen) hides this screen.
   export let onClose;
@@ -23,6 +25,14 @@
       label="Grayscale mode"
       description="Removes all colour so no one can guess the imposter from the screen."
       bind:value={$settings.grayscale}
+    />
+
+    <Select
+      id="setting-reveal-style"
+      label="Reveal animation"
+      description="How each player's role is revealed when the device is passed around."
+      options={REVEAL_STYLES}
+      bind:value={$settings.revealStyle}
     />
 
     <Toggle
