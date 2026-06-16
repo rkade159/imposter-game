@@ -15,11 +15,20 @@ const initial = {
   wordSource: null,
   word: null,
   hint: null, // the vague clue shown to the imposter(s); shared by all imposters this round
+  names: [], // names[i] = the custom name typed for player i ('' = use "Player i+1")
   roles: [], // roles[i] = { isImpostor } for player i; filled in by startGame()
   revealIndex: 0, // which player is currently revealing
 };
 
 export const gameState = writable({ ...initial });
+
+// The label to show for player i: their typed name if they entered one, otherwise
+// the positional "Player N" fallback. One rule, used by every screen so blank
+// fields degrade consistently. Defensive against a short/missing names array.
+export function displayName(names, i) {
+  const typed = names?.[i];
+  return (typeof typed === 'string' && typed.trim()) || `Player ${i + 1}`;
+}
 
 // Build the per-player roles array: impostorCount impostors and the rest
 // crewmates, then shuffle so the impostor positions are random. roles[i] is
@@ -36,7 +45,7 @@ function buildRoles(playerCount, impostorCount) {
 
 // Start a round: commit the setup config, generate the shuffled roles, and move
 // to the first player's reveal. Called by the setup screen's Start button.
-export function startGame({ playerCount, impostorCount, wordSource, word, hint }) {
+export function startGame({ playerCount, impostorCount, wordSource, word, hint, names }) {
   gameState.set({
     screen: 'reveal',
     playerCount,
@@ -44,6 +53,7 @@ export function startGame({ playerCount, impostorCount, wordSource, word, hint }
     wordSource,
     word,
     hint, // travels with the word for the round; the imposter reveal + results read it
+    names: names ?? [], // custom player names; screens fall back via displayName()
     roles: buildRoles(playerCount, impostorCount),
     revealIndex: 0,
   });
@@ -76,10 +86,10 @@ export function showResults() {
 }
 
 // Play another round with the SAME group: go back to setup but KEEP the player
-// count, impostor count, and word source so the form comes back pre-filled. The
-// per-round data (roles, revealIndex) and the previous word + hint are cleared —
-// a fresh word and hint are picked when Start is pressed again. (Spreading
-// `initial` resets screen/word/hint/roles/revealIndex, then we restore the three
+// count, impostor count, word source, and names so the form comes back pre-filled.
+// The per-round data (roles, revealIndex) and the previous word + hint are cleared
+// — a fresh word and hint are picked when Start is pressed again. (Spreading
+// `initial` resets screen/word/hint/roles/revealIndex, then we restore the kept
 // settings.)
 export function playAgain() {
   gameState.update((state) => ({
@@ -87,6 +97,7 @@ export function playAgain() {
     playerCount: state.playerCount,
     impostorCount: state.impostorCount,
     wordSource: state.wordSource,
+    names: state.names,
   }));
 }
 

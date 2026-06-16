@@ -1,28 +1,27 @@
 <script>
-  // Results screen — the payoff. Reveals who the imposter(s) were (by player
-  // number, matching the reveal/pass numbering) and what the secret word was,
-  // then offers a settings-preserving "Play again".
-  import { gameState, playAgain } from '../lib/game-state.js';
+  // Results screen — the payoff. Reveals who the imposter(s) were (by name, or the
+  // "Player N" fallback, matching the reveal/pass screens) and what the secret word
+  // was, then offers a settings-preserving "Play again".
+  import { gameState, playAgain, displayName } from '../lib/game-state.js';
 
-  // Join names readably: "Player 3" / "Player 2 and Player 5" /
-  // "Player 1, Player 4 and Player 6".
+  // Join names readably: "Alice" / "Alice and Bob" / "Alice, Bob and Cleo".
   function formatList(items) {
     if (items.length <= 1) return items[0] ?? '';
     if (items.length === 2) return `${items[0]} and ${items[1]}`;
     return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
   }
 
-  // roles[i] belongs to player i (0-based); players are shown 1-based. Collect
-  // the player numbers of everyone who was an imposter this round.
-  $: impostorNumbers = $gameState.roles
-    .map((role, i) => ({ isImpostor: role.isImpostor, number: i + 1 }))
+  // roles[i] belongs to player i (0-based). Collect the names (or "Player N"
+  // fallbacks) of everyone who was an imposter this round.
+  $: impostorNames = $gameState.roles
+    .map((role, i) => ({ isImpostor: role.isImpostor, index: i }))
     .filter((entry) => entry.isImpostor)
-    .map((entry) => entry.number);
+    .map((entry) => displayName($gameState.names, entry.index));
 
   // Pluralise the reveal line to match the count.
-  $: impostorList = formatList(impostorNumbers.map((n) => `Player ${n}`));
+  $: impostorList = formatList(impostorNames);
   $: heading =
-    impostorNumbers.length > 1
+    impostorNames.length > 1
       ? `The imposters were ${impostorList}`
       : `The imposter was ${impostorList}`;
 

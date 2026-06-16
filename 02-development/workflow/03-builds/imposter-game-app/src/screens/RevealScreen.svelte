@@ -5,7 +5,7 @@
   // moves on (pass to the next player, or straight to discussion for the last
   // player). Because the router recreates this component for each player, the
   // `revealed` flip resets to face-down every turn.
-  import { gameState, revealDone } from '../lib/game-state.js';
+  import { gameState, revealDone, displayName } from '../lib/game-state.js';
 
   // Face-down until this player taps to reveal. Local to this mount.
   let revealed = false;
@@ -14,6 +14,8 @@
   $: role = $gameState.roles[$gameState.revealIndex];
   $: isImpostor = role?.isImpostor === true;
   $: playerNumber = $gameState.revealIndex + 1;
+  // The current player's name (or "Player N" fallback) for the progress tag.
+  $: playerName = displayName($gameState.names, $gameState.revealIndex);
   $: isLastPlayer = $gameState.revealIndex === $gameState.playerCount - 1;
   // The imposter's hint for the round. Trimmed to a string; an empty result
   // (null / blank / non-string) means no usable hint, so the card falls back to
@@ -26,7 +28,7 @@
 </script>
 
 <section class="screen">
-  <p class="player-tag">Player {playerNumber} of {$gameState.playerCount}</p>
+  <p class="player-tag">{playerName} — {playerNumber} of {$gameState.playerCount}</p>
 
   {#if !revealed}
     <!-- Face-down: nothing about the role is shown until this player taps. -->

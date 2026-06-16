@@ -3,17 +3,19 @@
   // role information — only a prompt to hand the device to the next player. The
   // NEXT player is the one who taps "ready", so a role only ever appears after
   // that player's own deliberate action.
-  import { gameState, nextPlayer } from '../lib/game-state.js';
+  import { gameState, nextPlayer, displayName } from '../lib/game-state.js';
 
-  // The player about to reveal next is revealIndex + 1 (0-based), shown 1-based.
-  $: nextPlayerNumber = $gameState.revealIndex + 2;
+  // The player about to reveal next is at index revealIndex + 1 (0-based), shown
+  // 1-based. Resolve their name (or "Player N" fallback) for the hand-off prompt.
+  $: nextIndex = $gameState.revealIndex + 1;
+  $: nextName = displayName($gameState.names, nextIndex);
 </script>
 
 <section class="screen">
-  <p class="prompt">Pass to Player {nextPlayerNumber}</p>
+  <p class="prompt">Pass to {nextName}</p>
   <p class="sub">Don't peek — hand the device over first.</p>
   <button type="button" class="ready-btn" on:click={nextPlayer}>
-    I'm Player {nextPlayerNumber} — tap when ready
+    I'm {nextName} — tap when ready
   </button>
 </section>
 

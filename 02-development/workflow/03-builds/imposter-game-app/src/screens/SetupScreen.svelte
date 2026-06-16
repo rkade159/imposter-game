@@ -34,6 +34,11 @@
   let impostors = saved.impostorCount ?? DEFAULT_IMPOSTORS;
   let selectedSource = saved.wordSource ?? DEFAULT_WORD_SOURCE;
 
+  // Custom player names, one entry per player ('' = use the "Player N" placeholder).
+  // Seeded from gameState for the "Play again" case, then kept in sync with the
+  // player count below.
+  let names = saved.names?.length ? [...saved.names] : [];
+
   // Word-loading state. `words` holds the loaded list; `loadStatus` drives the
   // confirmation / error message and gates Start.
   let words = [];
@@ -47,6 +52,16 @@
   // assigns when actually out of range — otherwise it would loop forever.
   $: if (typeof impostors === 'number' && impostors > maxImpostors) {
     impostors = maxImpostors;
+  }
+
+  // Keep one name field per player as the count changes: append empty strings when
+  // it grows, trim from the end when it shrinks. Preserves already-typed names, and
+  // guarded so it only assigns when the length actually differs (avoids a loop).
+  $: if (typeof players === 'number' && players > 0 && names.length !== players) {
+    names =
+      names.length < players
+        ? [...names, ...Array(players - names.length).fill('')]
+        : names.slice(0, players);
   }
 
   // The selected source's metadata, for the "Loaded N <countNoun>" text.
@@ -99,6 +114,7 @@
       wordSource: selectedSource,
       word: entry.word ?? entry,
       hint: entry.hint ?? null,
+      names,
     });
   }
 </script>
@@ -120,6 +136,24 @@
     min={MIN_IMPOSTORS}
     max={maxImpostors}
   />
+
+  <!-- One name field per player. Optional: a blank field falls back to "Player N"
+       (see displayName in game-state.js), so these never gate Start. The list
+       grows/shrinks with the player count via the reactive sync above. -->
+  <div class="names-field">
+    <span class="field-label">Player Names:</span>
+    {#each names as _name, i}
+      <input
+        class="name-input"
+        type="text"
+        autocomplete="off"
+        maxlength="20"
+        placeholder={`Player ${i + 1}`}
+        aria-label={`Name for player ${i + 1}`}
+        bind:value={names[i]}
+      />
+    {/each}
+  </div>
 
   <div class="source-field">
     <label class="field-label" for="word-source">Word Source:</label>
@@ -172,6 +206,26 @@
   .source-field {
     display: flex;
     flex-direction: column;
+  }
+
+  /* Stacked list of name inputs — the gap separates the label from the first
+     field and the fields from each other. */
+  .names-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Matches the .count-input / .source-select look so the name fields read as
+     part of the same control set. */
+  .name-input {
+    min-height: 48px;
+    border-radius: 8px;
+    border: 1px solid var(--text-muted);
+    background-color: var(--bg);
+    color: var(--text);
+    font-size: 1rem;
+    padding: 0 12px;
   }
 
   .source-select {
