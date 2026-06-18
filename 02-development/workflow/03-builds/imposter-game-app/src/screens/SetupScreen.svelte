@@ -18,9 +18,11 @@
     DEFAULT_WORD_SOURCE,
     loadWords,
     pickWord,
+    isCustomSource,
   } from '../lib/word-source.js';
   import Stepper from '../components/Stepper.svelte';
   import SettingsScreen from './SettingsScreen.svelte';
+  import CustomListBuilder from './CustomListBuilder.svelte';
   import Modal from '../components/Modal.svelte';
   import { sessionSettings } from '../lib/session-settings.js';
 
@@ -29,6 +31,16 @@
   // form state below survives opening and closing Settings — see the note on
   // remount-on-return where `saved` is read.
   let showSettings = false;
+
+  // Whether the Custom List builder is showing in place of the setup form (same
+  // in-place-panel pattern as Settings). `customSelection` holds the word strings
+  // the user last confirmed, so re-opening the builder pre-highlights them.
+  // `previousSource` is the source to fall back to if they leave via Back. All of
+  // this is round-scoped local state — never persisted (see the remount guard
+  // where `saved.wordSource` is read).
+  let showBuilder = false;
+  let customSelection = [];
+  let previousSource = DEFAULT_WORD_SOURCE;
 
   // Anti-Yusuf popup state. While the feature is on, pressing Start opens this
   // dialog (see start()) instead of starting the round; blockedName holds the last
@@ -47,7 +59,12 @@
   const saved = get(gameState);
   let players = saved.playerCount ?? DEFAULT_PLAYERS;
   let impostors = saved.impostorCount ?? DEFAULT_IMPOSTORS;
-  let selectedSource = saved.wordSource ?? DEFAULT_WORD_SOURCE;
+  // Non-persistence guard: a custom list is round-scoped, so it isn't carried
+  // across rounds. playAgain() preserves wordSource, so a remount can arrive with
+  // 'custom' but no subset behind it — fall back to the default source then.
+  let selectedSource = isCustomSource(saved.wordSource)
+    ? DEFAULT_WORD_SOURCE
+    : (saved.wordSource ?? DEFAULT_WORD_SOURCE);
 
   // Custom player names, one entry per player ('' = use the "Player N" placeholder).
   // Seeded from gameState for the "Play again" case, then kept in sync with the
@@ -113,6 +130,40 @@
   // Auto-load on first render — the source is labelled "Auto-loaded".
   onMount(() => load(selectedSource));
 
+  // Word Source changed. The custom list has no file to fetch — picking it opens
+  // the builder instead of loading. Any other source loads as before, and we
+  // record it as previousSource so Back from the builder can restore it (the
+  // dropdown's bind already overwrote selectedSource by the time this fires, so
+  // previousSource is the only handle on where we came from).
+  function onSourceChange() {
+    if (isCustomSource(selectedSource)) {
+      showBuilder = true;
+      return;
+    }
+    previousSource = selectedSource;
+    load(selectedSource);
+  }
+
+  // The user confirmed a custom subset. Commit it as this round's word list:
+  // treat it exactly like a loaded source so the existing canStart gate and
+  // start() (pickWord) work unchanged. Remember the chosen words so re-opening
+  // the builder pre-highlights them.
+  function handleCustomConfirm(subset) {
+    words = subset;
+    loadStatus = 'loaded';
+    customSelection = subset.map((entry) => entry.word);
+    selectedSource = 'custom';
+    showBuilder = false;
+  }
+
+  // The user left the builder without confirming: revert to the previous source
+  // and load it so the dropdown and Start return to a valid state.
+  function handleCustomExit() {
+    showBuilder = false;
+    selectedSource = previousSource;
+    load(previousSource);
+  }
+
   // Start the round: pick one entry now and hand the full config to startGame(),
   // which builds the roles and moves to the first reveal. Guarded by canStart, so
   // the committed state is always complete and in range.
@@ -142,9 +193,16 @@
   }
 </script>
 
-<!-- Settings opens in place of the form; the form's local state is preserved
-     because this component stays mounted underneath. -->
-{#if showSettings}
+<!-- The Custom List builder and Settings each open in place of the form; the
+     form's local state is preserved because this component stays mounted
+     underneath. -->
+{#if showBuilder}
+  <CustomListBuilder
+    initialSelection={customSelection}
+    onConfirm={handleCustomConfirm}
+    onExit={handleCustomExit}
+  />
+{:else if showSettings}
   <!-- Pass the live imposter count so Settings can disable the "Reveal fellow
        imposters" toggle when there's only one imposter (no others to show). -->
   <SettingsScreen
@@ -200,7 +258,7 @@
       id="word-source"
       class="source-select"
       bind:value={selectedSource}
-      on:change={() => load(selectedSource)}
+      on:change={onSourceChange}
     >
       {#each WORD_SOURCES as source}
         <option value={source.id}>{source.label}</option>

@@ -17,10 +17,29 @@ export const WORD_SOURCES = [
     file: 'common-nouns.json',
     countNoun: 'common nouns',
   },
+  // The custom list is special: it has NO `file`. Selecting it doesn't fetch
+  // anything — the setup screen opens the Custom List builder instead, which
+  // lets the user hand-pick a subset of the Common Nouns deck for this round.
+  // `loadWords` must therefore never be called with this id (see isCustomSource).
+  {
+    id: 'custom',
+    label: 'Custom List',
+    countNoun: 'custom words',
+    custom: true,
+  },
 ];
 
-// The source selected by default when the setup screen first opens.
-export const DEFAULT_WORD_SOURCE = WORD_SOURCES[0].id;
+// The source selected by default when the setup screen first opens. Pinned to
+// common-nouns by id (not WORD_SOURCES[0]) so adding/reordering sources — like
+// the custom entry above — can't accidentally make 'custom' the default, which
+// has no deck of its own until the user builds one.
+export const DEFAULT_WORD_SOURCE = 'common-nouns';
+
+// Whether a source id is the in-memory custom list rather than a fetchable file.
+// The setup screen uses this to branch to the builder instead of loadWords().
+export function isCustomSource(id) {
+  return id === 'custom';
+}
 
 // Fetch the word list for a given source id from public/data/. Resolves to an
 // array of `{ word, hint }` entry objects. Throws on an unknown id, a failed
