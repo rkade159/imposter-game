@@ -14,6 +14,12 @@
 
   // Called when the user is done — the parent (SetupScreen) hides this screen.
   export let onClose;
+
+  // The round's currently-configured imposter count, from the setup form. Used to
+  // disable "Reveal fellow imposters" when there's only one imposter (or the field
+  // is empty), since there's then no other imposter to reveal.
+  export let impostorCount = null;
+  $: fellowImpostersDisabled = !(impostorCount >= 2);
 </script>
 
 <section class="screen">
@@ -33,6 +39,17 @@
       description="How each player's role is revealed when the device is passed around."
       options={REVEAL_STYLES}
       bind:value={$settings.revealStyle}
+    />
+
+    <!-- Only meaningful with 2+ imposters; disabled (with a note) otherwise. -->
+    <Toggle
+      id="setting-fellow-imposters"
+      label="Reveal fellow imposters"
+      description={fellowImpostersDisabled
+        ? 'With 2+ imposters, each imposter also sees who the others are. (Needs 2+ imposters.)'
+        : 'With 2+ imposters, each imposter also sees who the others are during the reveal.'}
+      disabled={fellowImpostersDisabled}
+      bind:value={$settings.showFellowImposters}
     />
 
     <Toggle

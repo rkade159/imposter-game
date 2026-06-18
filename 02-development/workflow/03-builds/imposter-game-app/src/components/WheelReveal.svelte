@@ -17,6 +17,10 @@
   export let isImpostor;
   export let word;
   export let hint = '';
+  // Names of the OTHER imposters, supplied by RevealScreen (already gated: empty
+  // unless the "Reveal fellow imposters" setting is on, this player is an imposter,
+  // and there are 2+ imposters). Rendered in the detail card when non-empty.
+  export let fellowImposters = [];
   export let advanceLabel;
   export let onDone; // called when the player taps to pass / continue
 
@@ -258,6 +262,9 @@
           <p class="result-key">Your hint: "{cleanHint}"</p>
         {:else}
           <p class="result-key">An error occurred.</p>
+        {/if}
+        {#if fellowImposters.length}
+          <p class="result-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
         {/if}
         <p class="result-sub">
           You don't know the word — use your hint to blend in during discussion!

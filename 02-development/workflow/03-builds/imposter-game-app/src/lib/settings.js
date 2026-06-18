@@ -23,6 +23,11 @@ const defaults = {
   // falls back to the original for anything it doesn't recognise. Persists across
   // rounds.
   revealStyle: DEFAULT_REVEAL_STYLE,
+
+  // Reveal fellow imposters: when on, each imposter's reveal also lists the OTHER
+  // imposters by name. Only has any effect with 2+ imposters (with one there are
+  // no others to show). The reveal screen gates on this; here it just persists.
+  showFellowImposters: false,
 };
 
 function load() {

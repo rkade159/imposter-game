@@ -101,6 +101,20 @@
   // (null / blank / non-string) means no usable hint, so the card falls back to
   // an error message instead of blocking the game.
   $: hint = typeof $gameState.hint === 'string' ? $gameState.hint.trim() : '';
+  // The OTHER imposters' names, shown to an imposter when the "Reveal fellow
+  // imposters" setting is on and there are 2+ imposters. Built from the roles
+  // array (same approach as the results screen) but excluding this player, so an
+  // imposter never sees themselves in the list. Empty in every other case
+  // (crewmate, setting off, single-imposter round), so the three reveal styles can
+  // simply render it when non-empty. This is the single source of truth for the
+  // feature — the styles don't re-derive it.
+  $: fellowImposters =
+    $settings.showFellowImposters && isImpostor && $gameState.impostorCount >= 2
+      ? $gameState.roles
+          .map((r, i) => ({ isImpostor: r.isImpostor, i }))
+          .filter((e) => e.isImpostor && e.i !== $gameState.revealIndex)
+          .map((e) => displayName($gameState.names, e.i))
+      : [];
   // Last player has no one to pass to — they continue to discussion instead.
   $: advanceLabel = isLastPlayer
     ? 'Hide & continue to discussion'
@@ -152,6 +166,9 @@
             {:else}
               <span class="note-hint">An error occurred.</span>
             {/if}
+            {#if fellowImposters.length}
+              <span class="note-sub">Your fellow imposters: {fellowImposters.join(', ')}</span>
+            {/if}
             <span class="note-sub">
               You don't know the word — use your hint to blend in during discussion!
             </span>
@@ -188,6 +205,7 @@
       {isImpostor}
       word={$gameState.word}
       {hint}
+      {fellowImposters}
       {advanceLabel}
       onDone={revealDone}
     />
@@ -207,6 +225,9 @@
           <p class="card-hint">Your hint: "{hint}"</p>
         {:else}
           <p class="card-hint">An error occurred.</p>
+        {/if}
+        {#if fellowImposters.length}
+          <p class="card-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
         {/if}
         <p class="card-sub">
           You don't know the word — use your hint to blend in during discussion!

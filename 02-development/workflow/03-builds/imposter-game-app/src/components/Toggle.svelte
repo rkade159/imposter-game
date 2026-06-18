@@ -10,10 +10,15 @@
   export let value = false; // bound boolean
   export let description = '';
   export let id = undefined;
+  // When true, the row is greyed out and the switch can't be flipped. Default
+  // false so every existing <Toggle> is unaffected. Used for settings that only
+  // apply in some configurations (e.g. "Reveal fellow imposters" needs 2+ imposters).
+  export let disabled = false;
 </script>
 
-<!-- Label/description on the left, switch on the right. -->
-<label class="toggle" for={id}>
+<!-- Label/description on the left, switch on the right. `disabled` greys the row
+     (see .toggle.is-disabled) and blocks the input. -->
+<label class="toggle" class:is-disabled={disabled} for={id}>
   <span class="toggle-text">
     <span class="toggle-label">{label}</span>
     {#if description}
@@ -28,6 +33,7 @@
       type="checkbox"
       role="switch"
       bind:checked={value}
+      {disabled}
     />
     <span class="switch-track"></span>
     <span class="switch-thumb"></span>
@@ -43,6 +49,16 @@
     justify-content: space-between;
     gap: 16px;
     cursor: pointer;
+  }
+
+  /* Disabled row: dimmed and non-interactive. The input is also `disabled`, so
+     this is purely the visual cue. */
+  .toggle.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .toggle.is-disabled .switch-input {
+    cursor: not-allowed;
   }
 
   .toggle-text {

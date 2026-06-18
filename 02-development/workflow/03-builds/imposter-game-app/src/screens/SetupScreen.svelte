@@ -145,7 +145,12 @@
 <!-- Settings opens in place of the form; the form's local state is preserved
      because this component stays mounted underneath. -->
 {#if showSettings}
-  <SettingsScreen onClose={() => (showSettings = false)} />
+  <!-- Pass the live imposter count so Settings can disable the "Reveal fellow
+       imposters" toggle when there's only one imposter (no others to show). -->
+  <SettingsScreen
+    onClose={() => (showSettings = false)}
+    impostorCount={impostors}
+  />
 {:else}
 <!-- Pick counts + word source, then press Start to begin the round. -->
 <section class="screen">
