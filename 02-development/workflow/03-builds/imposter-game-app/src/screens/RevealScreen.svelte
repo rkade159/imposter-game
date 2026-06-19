@@ -97,10 +97,18 @@
   // The current player's name (or "Player N" fallback) for the progress tag.
   $: playerName = displayName($gameState.names, $gameState.revealIndex);
   $: isLastPlayer = $gameState.revealIndex === $gameState.playerCount - 1;
-  // The imposter's hint for the round. Trimmed to a string; an empty result
-  // (null / blank / non-string) means no usable hint, so the card falls back to
-  // an error message instead of blocking the game.
-  $: hint = typeof $gameState.hint === 'string' ? $gameState.hint.trim() : '';
+  // The imposter's hint for the round. Normally the shared round hint, but on a
+  // Troll Mode round each player carries their OWN hint on their role (so every
+  // player sees a different clue) — prefer that when present. Trimmed to a string;
+  // an empty result (null / blank / non-string) means no usable hint, so the card
+  // falls back to an error message instead of blocking the game.
+  $: hint = (
+    typeof role?.hint === 'string'
+      ? role.hint
+      : typeof $gameState.hint === 'string'
+        ? $gameState.hint
+        : ''
+  ).trim();
   // The OTHER imposters' names, shown to an imposter when the "Reveal fellow
   // imposters" setting is on and there are 2+ imposters. Built from the roles
   // array (same approach as the results screen) but excluding this player, so an
@@ -108,8 +116,15 @@
   // (crewmate, setting off, single-imposter round), so the three reveal styles can
   // simply render it when non-empty. This is the single source of truth for the
   // feature — the styles don't re-derive it.
+  //
+  // Suppressed on a Troll Mode round (!isTroll): there every player is an imposter,
+  // so listing "fellow imposters" would expose everyone and blow the whole "I'm the
+  // lone imposter" illusion the mode depends on.
   $: fellowImposters =
-    $settings.showFellowImposters && isImpostor && $gameState.impostorCount >= 2
+    $settings.showFellowImposters &&
+    isImpostor &&
+    !$gameState.isTroll &&
+    $gameState.impostorCount >= 2
       ? $gameState.roles
           .map((r, i) => ({ isImpostor: r.isImpostor, i }))
           .filter((e) => e.isImpostor && e.i !== $gameState.revealIndex)

@@ -6,6 +6,7 @@
 // on every change, so a toggle the user flips once stays flipped.
 import { writable } from 'svelte/store';
 import { DEFAULT_REVEAL_STYLE } from './reveal-styles.js';
+import { DEFAULT_TROLL_MODE } from './troll-mode.js';
 
 const STORAGE_KEY = 'imposter:settings';
 
@@ -28,6 +29,12 @@ const defaults = {
   // imposters by name. Only has any effect with 2+ imposters (with one there are
   // no others to show). The reveal screen gates on this; here it just persists.
   showFellowImposters: false,
+
+  // Troll Mode: occasionally turns a whole round into chaos where everyone is the
+  // imposter. The set of values lives in troll-mode.js; the setup screen rolls
+  // against it each round. Persists across rounds (Guaranteed turns itself off
+  // after firing). See troll-state.js for the cross-round counters.
+  trollMode: DEFAULT_TROLL_MODE,
 };
 
 function load() {

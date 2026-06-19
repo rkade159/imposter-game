@@ -16,7 +16,8 @@ const initial = {
   word: null,
   hint: null, // the vague clue shown to the imposter(s); shared by all imposters this round
   names: [], // names[i] = the custom name typed for player i ('' = use "Player i+1")
-  roles: [], // roles[i] = { isImpostor } for player i; filled in by startGame()
+  isTroll: false, // Troll Mode round: everyone is an imposter (see startGame / troll-mode.js)
+  roles: [], // roles[i] = { isImpostor[, hint] } for player i; filled in by startGame()
   revealIndex: 0, // which player is currently revealing
 };
 
@@ -43,9 +44,16 @@ function buildRoles(playerCount, impostorCount) {
   return shuffle(roles);
 }
 
-// Start a round: commit the setup config, generate the shuffled roles, and move
-// to the first player's reveal. Called by the setup screen's Start button.
-export function startGame({ playerCount, impostorCount, wordSource, word, hint, names }) {
+// Start a round: commit the setup config, generate the roles, and move to the
+// first player's reveal. Called by the setup screen's Start button.
+//
+// trollHints (Troll Mode): when a non-empty array is passed, this is a troll
+// round — EVERY player is an imposter and roles[i] carries that player's own
+// hint, so the reveal screen shows each a different clue and no one can tell.
+// The shared `word`/`hint` are still stored (harmless: no crewmate ever reads
+// the word). Absent/empty → a normal shuffled round.
+export function startGame({ playerCount, impostorCount, wordSource, word, hint, names, trollHints = null }) {
+  const isTroll = Array.isArray(trollHints) && trollHints.length > 0;
   gameState.set({
     screen: 'reveal',
     playerCount,
@@ -54,7 +62,10 @@ export function startGame({ playerCount, impostorCount, wordSource, word, hint, 
     word,
     hint, // travels with the word for the round; the imposter reveal + results read it
     names: names ?? [], // custom player names; screens fall back via displayName()
-    roles: buildRoles(playerCount, impostorCount),
+    isTroll,
+    roles: isTroll
+      ? trollHints.map((playerHint) => ({ isImpostor: true, hint: playerHint }))
+      : buildRoles(playerCount, impostorCount),
     revealIndex: 0,
   });
 }

@@ -9,6 +9,7 @@
   import { settings } from '../lib/settings.js';
   import { sessionSettings } from '../lib/session-settings.js';
   import { REVEAL_STYLES } from '../lib/reveal-styles.js';
+  import { TROLL_MODES } from '../lib/troll-mode.js';
   import Toggle from '../components/Toggle.svelte';
   import Select from '../components/Select.svelte';
 
@@ -57,6 +58,17 @@
       label="Anti-Yusuf Feature"
       description="No explanation needed here..."
       bind:value={$sessionSettings.antiYusuf}
+    />
+
+    <!-- Troll Mode: an enum like the reveal style. Off by default; the surprise
+         modes persist and fire on a random later round (Guaranteed turns itself
+         off after one round). -->
+    <Select
+      id="setting-troll-mode"
+      label="Troll Mode"
+      description="Occasionally makes EVERYONE the imposter for one chaotic round."
+      options={TROLL_MODES}
+      bind:value={$settings.trollMode}
     />
   </div>
 

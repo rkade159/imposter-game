@@ -25,6 +25,9 @@
   import CustomListBuilder from './CustomListBuilder.svelte';
   import Modal from '../components/Modal.svelte';
   import { sessionSettings } from '../lib/session-settings.js';
+  import { settings } from '../lib/settings.js';
+  import { trollState } from '../lib/troll-state.js';
+  import { rollTroll, buildTrollHints } from '../lib/troll-mode.js';
 
   // Whether the Settings screen is showing in place of the setup form. Kept as a
   // local flag (not a route) so this component stays mounted and the in-flight
@@ -182,6 +185,21 @@
     // missing hint becomes null — the reveal and results screens then show
     // "An error occurred." instead of a hint rather than blocking the game.
     const entry = pickWord(words);
+
+    // Troll Mode: roll once for the round about to start (after the Anti-Yusuf
+    // gate, so a blocked Start doesn't burn a roll). On a hit, EVERYONE becomes an
+    // imposter and each gets their own random hint, so every player thinks they're
+    // the lone imposter. The roll also advances the persisted cross-round state,
+    // and Guaranteed asks us to turn the setting back off after firing once. A
+    // real word/hint is still committed below — it's simply never shown when no
+    // one is a crewmate.
+    const { isTroll, nextState, disableMode } = rollTroll(
+      $settings.trollMode,
+      get(trollState)
+    );
+    trollState.set(nextState);
+    if (disableMode) $settings.trollMode = 'off';
+
     startGame({
       playerCount: players,
       impostorCount: impostors,
@@ -189,6 +207,7 @@
       word: entry.word ?? entry,
       hint: entry.hint ?? null,
       names,
+      trollHints: isTroll ? buildTrollHints(words, players) : null,
     });
   }
 </script>
