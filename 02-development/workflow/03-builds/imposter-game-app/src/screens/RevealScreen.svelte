@@ -109,6 +109,12 @@
         ? $gameState.hint
         : ''
   ).trim();
+  // Whether to show the imposter their hint at all. When the "Imposter hints"
+  // setting is off, the imposter sees only "YOU ARE THE IMPOSTER" with no clue —
+  // a harder round. Gated here at reveal time (not at hint build), so it covers
+  // every style and Troll Mode rounds too. Distinct from a missing hint: with
+  // the setting on, a blank hint still falls back to the error message below.
+  $: showHint = $settings.enableImpostorHint;
   // The OTHER imposters' names, shown to an imposter when the "Reveal fellow
   // imposters" setting is on and there are 2+ imposters. Built from the roles
   // array (same approach as the results screen) but excluding this player, so an
@@ -176,17 +182,21 @@
         <span class="note" class:note-impostor={isImpostor} class:note-crewmate={!isImpostor}>
           {#if isImpostor}
             <span class="note-title">🎭 YOU ARE THE IMPOSTER!</span>
-            {#if hint}
-              <span class="note-hint">Your hint: "{hint}"</span>
-            {:else}
-              <span class="note-hint">An error occurred.</span>
+            {#if showHint}
+              {#if hint}
+                <span class="note-hint">Your hint: "{hint}"</span>
+              {:else}
+                <span class="note-hint">An error occurred.</span>
+              {/if}
             {/if}
             {#if fellowImposters.length}
               <span class="note-sub">Your fellow imposters: {fellowImposters.join(', ')}</span>
             {/if}
-            <span class="note-sub">
-              You don't know the word — use your hint to blend in during discussion!
-            </span>
+            {#if showHint}
+              <span class="note-sub">
+                You don't know the word — use your hint to blend in during discussion!
+              </span>
+            {/if}
           {:else}
             <span class="note-title">📝 THE WORD IS:</span>
             <span class="note-word">"{$gameState.word}"</span>
@@ -220,6 +230,7 @@
       {isImpostor}
       word={$gameState.word}
       {hint}
+      {showHint}
       {fellowImposters}
       {advanceLabel}
       onDone={revealDone}
@@ -236,17 +247,21 @@
            in. A missing/blank hint degrades to an error message (game continues). -->
       <div class="card card-impostor">
         <p class="card-title">🎭 YOU ARE THE IMPOSTER!</p>
-        {#if hint}
-          <p class="card-hint">Your hint: "{hint}"</p>
-        {:else}
-          <p class="card-hint">An error occurred.</p>
+        {#if showHint}
+          {#if hint}
+            <p class="card-hint">Your hint: "{hint}"</p>
+          {:else}
+            <p class="card-hint">An error occurred.</p>
+          {/if}
         {/if}
         {#if fellowImposters.length}
           <p class="card-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
         {/if}
-        <p class="card-sub">
-          You don't know the word — use your hint to blend in during discussion!
-        </p>
+        {#if showHint}
+          <p class="card-sub">
+            You don't know the word — use your hint to blend in during discussion!
+          </p>
+        {/if}
       </div>
       <button type="button" class="advance-btn" on:click={revealDone}>
         {advanceLabel}

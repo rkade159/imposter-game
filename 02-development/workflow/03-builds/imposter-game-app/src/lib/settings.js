@@ -30,6 +30,13 @@ const defaults = {
   // no others to show). The reveal screen gates on this; here it just persists.
   showFellowImposters: false,
 
+  // Imposter hints: when on (default), the imposter is shown a vague hint instead
+  // of the word, as always. Turn off to withhold it — the imposter then learns
+  // only THAT they're the imposter, making the round harder for them. The reveal
+  // screen gates the hint display on this (reveal-time, so it also covers Troll
+  // Mode rounds); here it just persists across rounds.
+  enableImpostorHint: true,
+
   // Troll Mode: occasionally turns a whole round into chaos where everyone is the
   // imposter. The set of values lives in troll-mode.js; the setup screen rolls
   // against it each round. Persists across rounds (Guaranteed turns itself off

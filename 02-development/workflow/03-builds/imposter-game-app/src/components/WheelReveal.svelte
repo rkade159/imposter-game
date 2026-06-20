@@ -17,6 +17,9 @@
   export let isImpostor;
   export let word;
   export let hint = '';
+  // Whether to show the imposter's hint. Gated by RevealScreen on the "Imposter
+  // hints" setting; when false the detail card shows the role only, no clue.
+  export let showHint = true;
   // Names of the OTHER imposters, supplied by RevealScreen (already gated: empty
   // unless the "Reveal fellow imposters" setting is on, this player is an imposter,
   // and there are 2+ imposters). Rendered in the detail card when non-empty.
@@ -258,17 +261,21 @@
     <div class="result" class:result-impostor={isImpostor} class:result-crewmate={!isImpostor}>
       {#if isImpostor}
         <p class="result-title">🎭 You're the IMPOSTER!</p>
-        {#if cleanHint}
-          <p class="result-key">Your hint: "{cleanHint}"</p>
-        {:else}
-          <p class="result-key">An error occurred.</p>
+        {#if showHint}
+          {#if cleanHint}
+            <p class="result-key">Your hint: "{cleanHint}"</p>
+          {:else}
+            <p class="result-key">An error occurred.</p>
+          {/if}
         {/if}
         {#if fellowImposters.length}
           <p class="result-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
         {/if}
-        <p class="result-sub">
-          You don't know the word — use your hint to blend in during discussion!
-        </p>
+        {#if showHint}
+          <p class="result-sub">
+            You don't know the word — use your hint to blend in during discussion!
+          </p>
+        {/if}
       {:else}
         <p class="result-title">📝 You're a CREWMATE</p>
         <p class="result-key">The word is "{word}"</p>

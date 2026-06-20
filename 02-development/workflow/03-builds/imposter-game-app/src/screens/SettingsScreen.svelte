@@ -53,6 +53,15 @@
       bind:value={$settings.showFellowImposters}
     />
 
+    <!-- Imposter hints: on by default (current behaviour). Off withholds the
+         imposter's hint to make the round harder; gated at reveal time. -->
+    <Toggle
+      id="setting-imposter-hints"
+      label="Imposter hints"
+      description="When on, the imposter is shown a vague hint instead of the word. Turn off to make rounds harder for the imposter."
+      bind:value={$settings.enableImpostorHint}
+    />
+
     <Toggle
       id="setting-anti-yusuf"
       label="Anti-Yusuf Feature"
