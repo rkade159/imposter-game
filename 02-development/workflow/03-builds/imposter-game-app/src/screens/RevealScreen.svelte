@@ -18,6 +18,7 @@
   import { settings } from '../lib/settings.js';
   import WheelReveal from '../components/WheelReveal.svelte';
   import CardGridReveal from '../components/CardGridReveal.svelte';
+  import PeekReveal from '../components/PeekReveal.svelte';
 
   // Which reveal style to use, from the persisted Settings store. Anything other
   // than a style we recognise falls back to the original tap-to-reveal, so an
@@ -266,6 +267,18 @@
       {isImpostor}
       {isJester}
       hasJester={$gameState.hasJester}
+      word={$gameState.word}
+      {hint}
+      {showHint}
+      {fellowImposters}
+      {advanceLabel}
+      onDone={revealDone}
+    />
+  {:else if revealStyle === 'peek'}
+    <!-- ============ Peek under (swipe up & hold to lift the cover) ============ -->
+    <PeekReveal
+      {isImpostor}
+      {isJester}
       word={$gameState.word}
       {hint}
       {showHint}
