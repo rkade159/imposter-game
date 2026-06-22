@@ -6,6 +6,7 @@
 // on every change, so a toggle the user flips once stays flipped.
 import { writable } from 'svelte/store';
 import { DEFAULT_REVEAL_STYLE } from './reveal-styles.js';
+import { DEFAULT_RESULTS_REVEAL } from './results-reveal-styles.js';
 import { DEFAULT_TROLL_MODE } from './troll-mode.js';
 
 const STORAGE_KEY = 'imposter:settings';
@@ -24,6 +25,13 @@ const defaults = {
   // falls back to the original for anything it doesn't recognise. Persists across
   // rounds.
   revealStyle: DEFAULT_REVEAL_STYLE,
+
+  // Imposter reveal: which animation the RESULTS screen uses to reveal who the
+  // imposter(s) were at the end of the round. Separate from revealStyle (that's the
+  // per-player role reveal); the set of values lives in results-reveal-styles.js and
+  // ResultsScreen branches on this id, falling back to 'static' for anything it
+  // doesn't recognise. Defaults to 'static' so existing behaviour is unchanged.
+  resultsRevealStyle: DEFAULT_RESULTS_REVEAL,
 
   // Reveal fellow imposters: when on, each imposter's reveal also lists the OTHER
   // imposters by name. Only has any effect with 2+ imposters (with one there are

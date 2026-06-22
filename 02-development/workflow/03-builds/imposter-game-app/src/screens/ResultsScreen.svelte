@@ -3,6 +3,22 @@
   // "Player N" fallback, matching the reveal/pass screens) and what the secret word
   // was, then offers a settings-preserving "Play again".
   import { gameState, playAgain, displayName } from '../lib/game-state.js';
+  import { settings } from '../lib/settings.js';
+  import SpotlightReveal from '../components/SpotlightReveal.svelte';
+
+  // Optional "Spotlight" lead-in (the Imposter reveal setting). When on, the dramatic
+  // hunt plays first and `revealed` flips when it finishes (or is skipped), after which
+  // the same static results text below is shown. Default 'static' skips straight to it.
+  let revealed = false;
+  $: useSpotlight = $settings.resultsRevealStyle === 'spotlight';
+
+  // The roster the Spotlight animation needs: each player's display name + role flags,
+  // built from the SAME roles/displayName source the reveal lines below use.
+  $: players = $gameState.roles.map((role, i) => ({
+    name: displayName($gameState.names, i),
+    isImpostor: role.isImpostor,
+    isJester: !!role.isJester,
+  }));
 
   // Join names readably: "Alice" / "Alice and Bob" / "Alice, Bob and Cleo".
   function formatList(items) {
@@ -40,22 +56,27 @@
   $: hint = typeof $gameState.hint === 'string' ? $gameState.hint.trim() : '';
 </script>
 
-<section class="screen">
-  <p class="title">Results</p>
-  <p class="impostors">{heading}</p>
-  {#if jesterName}
-    <p class="jester">The jester was {jesterName}</p>
-  {/if}
-  <p class="word">The word was "{$gameState.word}"</p>
-  {#if hint}
-    <p class="hint">The imposter's hint was "{hint}"</p>
-  {:else}
-    <p class="hint">An error occurred.</p>
-  {/if}
-  <button type="button" class="play-again-btn" on:click={playAgain}>
-    Play again
-  </button>
-</section>
+{#if useSpotlight && !revealed}
+  <!-- Dramatic lead-in: hunt for the imposter in the dark, then show the results below. -->
+  <SpotlightReveal {players} onDone={() => (revealed = true)} />
+{:else}
+  <section class="screen">
+    <p class="title">Results</p>
+    <p class="impostors">{heading}</p>
+    {#if jesterName}
+      <p class="jester">The jester was {jesterName}</p>
+    {/if}
+    <p class="word">The word was "{$gameState.word}"</p>
+    {#if hint}
+      <p class="hint">The imposter's hint was "{hint}"</p>
+    {:else}
+      <p class="hint">An error occurred.</p>
+    {/if}
+    <button type="button" class="play-again-btn" on:click={playAgain}>
+      Play again
+    </button>
+  </section>
+{/if}
 
 <style>
   /* Centred layout — uses the dark-theme tokens from app.css. */

@@ -9,6 +9,7 @@
   import { settings } from '../lib/settings.js';
   import { sessionSettings } from '../lib/session-settings.js';
   import { REVEAL_STYLES } from '../lib/reveal-styles.js';
+  import { RESULTS_REVEALS } from '../lib/results-reveal-styles.js';
   import { TROLL_MODES } from '../lib/troll-mode.js';
   import Toggle from '../components/Toggle.svelte';
   import Select from '../components/Select.svelte';
@@ -40,6 +41,16 @@
       description="How each player's role is revealed when the device is passed around."
       options={REVEAL_STYLES}
       bind:value={$settings.revealStyle}
+    />
+
+    <!-- The end-of-round reveal animation (results screen). Separate from the
+         per-player "Reveal animation" above; defaults to the plain static text. -->
+    <Select
+      id="setting-results-reveal"
+      label="Imposter reveal"
+      description="How the imposter(s) are revealed at the end of the round."
+      options={RESULTS_REVEALS}
+      bind:value={$settings.resultsRevealStyle}
     />
 
     <!-- Only meaningful with 2+ imposters; disabled (with a note) otherwise. -->
