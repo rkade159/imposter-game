@@ -17,7 +17,8 @@ const initial = {
   hint: null, // the vague clue shown to the imposter(s); shared by all imposters this round
   names: [], // names[i] = the custom name typed for player i ('' = use "Player i+1")
   isTroll: false, // Troll Mode round: everyone is an imposter (see startGame / troll-mode.js)
-  roles: [], // roles[i] = { isImpostor[, hint] } for player i; filled in by startGame()
+  hasJester: false, // Jester round: one player is the Jester (see startGame / roles-config.js)
+  roles: [], // roles[i] = { isImpostor[, isJester][, hint] } for player i; filled in by startGame()
   revealIndex: 0, // which player is currently revealing
 };
 
@@ -31,15 +32,25 @@ export function displayName(names, i) {
   return (typeof typed === 'string' && typed.trim()) || `Player ${i + 1}`;
 }
 
-// Build the per-player roles array: impostorCount impostors and the rest
-// crewmates, then shuffle so the impostor positions are random. roles[i] is
-// player i's role. Crewmates "get the word" by reading gameState.word and
-// impostors "get the hint" by reading gameState.hint, so only the impostor flag
-// is stored per entry.
-function buildRoles(playerCount, impostorCount) {
+// Build the per-player roles array: impostorCount impostors, one jester when
+// hasJester, and the rest crewmates, then shuffle so positions are random.
+// roles[i] is player i's role. Crewmates AND the jester "get the word" by reading
+// gameState.word; impostors "get the hint" by reading gameState.hint — so only the
+// role flags are stored per entry. The jester is NOT an imposter (isImpostor:false)
+// but reveals as its own role, so reveal/results check isJester before the split.
+function buildRoles(playerCount, impostorCount, hasJester = false) {
   const roles = [];
+  // Lay out imposters first, then the single jester (when on), then crewmates fill
+  // the rest — the shuffle below scatters them, so the order here is just bookkeeping.
+  const jesterCount = hasJester ? 1 : 0;
   for (let i = 0; i < playerCount; i++) {
-    roles.push({ isImpostor: i < impostorCount });
+    if (i < impostorCount) {
+      roles.push({ isImpostor: true });
+    } else if (i < impostorCount + jesterCount) {
+      roles.push({ isImpostor: false, isJester: true });
+    } else {
+      roles.push({ isImpostor: false });
+    }
   }
   return shuffle(roles);
 }
@@ -52,8 +63,13 @@ function buildRoles(playerCount, impostorCount) {
 // hint, so the reveal screen shows each a different clue and no one can tell.
 // The shared `word`/`hint` are still stored (harmless: no crewmate ever reads
 // the word). Absent/empty → a normal shuffled round.
-export function startGame({ playerCount, impostorCount, wordSource, word, hint, names, trollHints = null }) {
+// jesterEnabled (Jester role): when true AND this is not a troll round, one player
+// is the Jester. Troll Mode wins — on a troll round everyone is an imposter and the
+// jester is ignored (hasJester false, no banner). The persisted toggle lives in
+// roles-config.js; the setup screen only passes it on when the player count allows.
+export function startGame({ playerCount, impostorCount, wordSource, word, hint, names, trollHints = null, jesterEnabled = false }) {
   const isTroll = Array.isArray(trollHints) && trollHints.length > 0;
+  const hasJester = jesterEnabled && !isTroll;
   gameState.set({
     screen: 'reveal',
     playerCount,
@@ -63,9 +79,10 @@ export function startGame({ playerCount, impostorCount, wordSource, word, hint, 
     hint, // travels with the word for the round; the imposter reveal + results read it
     names: names ?? [], // custom player names; screens fall back via displayName()
     isTroll,
+    hasJester, // drives the "a jester is in play" banner + the results reveal
     roles: isTroll
       ? trollHints.map((playerHint) => ({ isImpostor: true, hint: playerHint }))
-      : buildRoles(playerCount, impostorCount),
+      : buildRoles(playerCount, impostorCount, hasJester),
     revealIndex: 0,
   });
 }

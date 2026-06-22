@@ -93,6 +93,10 @@
   // The current player's role and their 1-based position in the round.
   $: role = $gameState.roles[$gameState.revealIndex];
   $: isImpostor = role?.isImpostor === true;
+  // The Jester (an optional role): reads the real word like a crewmate but reveals
+  // as its own role. isImpostor is false for the jester, so every reveal style must
+  // check isJester BEFORE the imposter/crewmate split or it renders as a crewmate.
+  $: isJester = role?.isJester === true;
   $: playerNumber = $gameState.revealIndex + 1;
   // The current player's name (or "Player N" fallback) for the progress tag.
   $: playerName = displayName($gameState.names, $gameState.revealIndex);
@@ -143,6 +147,12 @@
 </script>
 
 <section class="screen">
+  <!-- Jester announcement: when a jester is in play this round, everyone is told so
+       they play more cautiously (the jester wants to be mistaken for the imposter). -->
+  {#if $gameState.hasJester}
+    <p class="jester-banner">🃏 A JESTER is among you this round</p>
+  {/if}
+
   <p class="player-tag">{playerName} — {playerNumber} of {$gameState.playerCount}</p>
 
   {#if useEnvelope}
@@ -179,8 +189,20 @@
              closed envelope gives nothing away; it rises and fades in once
              opened. Its border/title colour come from --accent / --error, so
              Grayscale mode collapses the two roles to the same gray. -->
-        <span class="note" class:note-impostor={isImpostor} class:note-crewmate={!isImpostor}>
-          {#if isImpostor}
+        <span
+          class="note"
+          class:note-impostor={isImpostor}
+          class:note-jester={isJester}
+          class:note-crewmate={!isImpostor && !isJester}
+        >
+          {#if isJester}
+            <!-- Jester: knows the word like a crewmate, but a different goal. -->
+            <span class="note-title">🃏 YOU ARE THE JESTER!</span>
+            <span class="note-word">"{$gameState.word}"</span>
+            <span class="note-sub">
+              You know the word — but you WIN by getting voted out. Act like the imposter!
+            </span>
+          {:else if isImpostor}
             <span class="note-title">🎭 YOU ARE THE IMPOSTER!</span>
             {#if showHint}
               {#if hint}
@@ -228,6 +250,8 @@
     <!-- ============ Wheel of Fate (hold to spin & stop) ============ -->
     <WheelReveal
       {isImpostor}
+      {isJester}
+      hasJester={$gameState.hasJester}
       word={$gameState.word}
       {hint}
       {showHint}
@@ -241,6 +265,18 @@
       <!-- Face-down: nothing about the role is shown until this player taps. -->
       <button type="button" class="reveal-btn" on:click={() => (revealed = true)}>
         Tap to reveal your role
+      </button>
+    {:else if isJester}
+      <!-- Jester: shown the secret word (like a crewmate) but with the get-voted-out goal. -->
+      <div class="card card-jester">
+        <p class="card-title">🃏 YOU ARE THE JESTER!</p>
+        <p class="card-word">"{$gameState.word}"</p>
+        <p class="card-sub">
+          You know the word — but you WIN by getting voted out. Act like the imposter!
+        </p>
+      </div>
+      <button type="button" class="advance-btn" on:click={revealDone}>
+        {advanceLabel}
       </button>
     {:else if isImpostor}
       <!-- Impostor: never shown the secret word, but given a vague hint to blend
@@ -299,6 +335,18 @@
     font-weight: 600;
   }
 
+  /* "A jester is among you" banner — light pink, neutralises in Grayscale. */
+  .jester-banner {
+    margin: 0;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--jester);
+    border-radius: 8px;
+    color: var(--jester);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
   /* ============ Original reveal styles ============ */
 
   /* Face-down prompt — a large tap target so it's hard to miss on hand-off. */
@@ -338,6 +386,14 @@
   }
   .card-impostor .card-title {
     color: var(--error);
+  }
+  /* Jester card — light pink, parallel to the crewmate/imposter cards. */
+  .card-jester {
+    border: 2px solid var(--jester);
+  }
+  .card-jester .card-title,
+  .card-jester .card-word {
+    color: var(--jester);
   }
 
   .card-title {
@@ -450,6 +506,14 @@
   }
   .note-impostor .note-title {
     color: var(--error);
+  }
+  /* Jester note — light pink, parallel to the crewmate/imposter notes. */
+  .note-jester {
+    border-color: var(--jester);
+  }
+  .note-jester .note-title,
+  .note-jester .note-word {
+    color: var(--jester);
   }
 
   .note-title {

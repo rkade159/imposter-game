@@ -16,6 +16,12 @@
 </script>
 
 <section class="screen">
+  <!-- Jester reminder during the debate: a jester wants to be mistaken for the
+       imposter, so the table is reminded to weigh their votes carefully. -->
+  {#if $gameState.hasJester}
+    <p class="jester-banner">🃏 A JESTER is among you this round</p>
+  {/if}
+
   {#if !confirming}
     <!-- Discuss view: no role or word info — just the prompt and the reveal trigger. -->
     <p class="title">Discussion</p>
@@ -53,6 +59,18 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
+  }
+
+  /* "A jester is among you" banner — light pink, neutralises in Grayscale. */
+  .jester-banner {
+    margin: 0;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--jester);
+    border-radius: 8px;
+    color: var(--jester);
+    font-weight: 700;
+    font-size: 0.95rem;
   }
 
   .sub {

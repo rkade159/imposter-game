@@ -15,6 +15,13 @@
 
   // Round data + how to advance, supplied by RevealScreen.
   export let isImpostor;
+  // The optional Jester role: reads the real word like a crewmate but reveals as
+  // its own role. isImpostor is false for the jester, so the rig and the detail
+  // card key off `kind` (below), not isImpostor alone.
+  export let isJester = false;
+  // Whether a jester is in play THIS round. When true, the wheel includes light-pink
+  // jester wedges so it can land on one (the jester is announced, so this is no leak).
+  export let hasJester = false;
   export let word;
   export let hint = '';
   // Whether to show the imposter's hint. Gated by RevealScreen on the "Imposter
@@ -27,18 +34,34 @@
   export let advanceLabel;
   export let onDone; // called when the player taps to pass / continue
 
-  // --- Wheel segments (first-cut, easily edited) ---------------------------
-  // Alternating role so each role has several landing spots; the labels are just
-  // for fun — the detail card below states the role unambiguously. `isImpostor`
-  // is what the rig matches against.
-  const SEGMENTS = [
-    { label: 'CREWMATE', isImpostor: false },
-    { label: 'IMPOSTER', isImpostor: true },
-    { label: 'Innocent 😇', isImpostor: false },
-    { label: 'Sneaky 🕵️', isImpostor: true },
-    { label: 'Good Egg 🥚', isImpostor: false },
-    { label: 'Sus 😈', isImpostor: true },
+  // The player's role as a single tag the rig and detail card both match on. The
+  // jester is checked first (it has isImpostor false but is its own kind).
+  $: kind = isJester ? 'jester' : isImpostor ? 'impostor' : 'crewmate';
+
+  // --- Wheel segments (easily edited) --------------------------------------
+  // Mixed kinds so each role has several landing spots; the labels are just for
+  // fun — the detail card below states the role unambiguously. `kind` is what the
+  // rig matches against. On a jester round we swap in a set that includes jester
+  // wedges so the wheel can land on one (only when a jester is actually in play —
+  // otherwise there's no jester segment for it to rig to). hasJester is fixed for
+  // this player's turn (the component remounts per player), so a const is fine.
+  const BASE_SEGMENTS = [
+    { label: 'CREWMATE', kind: 'crewmate' },
+    { label: 'IMPOSTER', kind: 'impostor' },
+    { label: 'Innocent 😇', kind: 'crewmate' },
+    { label: 'Sneaky 🕵️', kind: 'impostor' },
+    { label: 'Good Egg 🥚', kind: 'crewmate' },
+    { label: 'Sus 😈', kind: 'impostor' },
   ];
+  const JESTER_SEGMENTS = [
+    { label: 'CREWMATE', kind: 'crewmate' },
+    { label: 'IMPOSTER', kind: 'impostor' },
+    { label: 'JESTER 🃏', kind: 'jester' },
+    { label: 'Innocent 😇', kind: 'crewmate' },
+    { label: 'Sus 😈', kind: 'impostor' },
+    { label: 'Fool 🤡', kind: 'jester' },
+  ];
+  const SEGMENTS = hasJester ? JESTER_SEGMENTS : BASE_SEGMENTS;
 
   // --- Geometry (SVG, 200×200 viewBox) -------------------------------------
   // Wedges and labels are precomputed once so the markup is plain. Angles are
@@ -73,11 +96,13 @@
   let phase = 'spinning';
   let angle = 0; // current wheel rotation, degrees (driven each frame)
   let landed = false;
+  let settleProgress = 0; // 0→1 across a hold; drives the loading bar below
 
   // Tuning constants — safe to tweak after a playtest.
   const IDLE_SPEED = 0.5; // degrees per ms while spinning
-  const SETTLE_MS = 3200; // how long a full hold takes to bring it to rest
-  const MIN_SPINS = 3; // at least this many turns during the slow-down
+  const SETTLE_MS = 2000; // how long a full hold takes to bring it to rest (snappier than before)
+  const MIN_SPINS = 2; // at least this many turns during the slow-down
+  const SNAP_THRESHOLD = 0.95; // release past this fraction of the settle → snap to the result
   const REDUCED_HOLD_MS = 1200; // hold time when motion is reduced (no spin)
 
   let raf = null;
@@ -92,7 +117,7 @@
   // role under the top pointer. Random among the matching segments so the landing
   // spot isn't predictable.
   function chooseRestRotation() {
-    const matches = wedges.filter((w) => w.isImpostor === isImpostor);
+    const matches = wedges.filter((w) => w.kind === kind);
     const pick = matches[Math.floor(Math.random() * matches.length)];
     // bringing center → top means rotating by -center (mod 360)
     return ((-pick.center) % 360 + 360) % 360;
@@ -119,8 +144,10 @@
     if (phase === 'spinning') {
       // mod keeps the value bounded; rotate() is unaffected by full turns.
       angle = (angle + IDLE_SPEED * dt) % 360;
+      settleProgress = 0; // released → the loading bar empties
     } else if (phase === 'settling') {
       const t = (now - holdStart) / SETTLE_MS;
+      settleProgress = Math.min(t, 1); // fills the loading bar as it slows
       if (t >= 1) {
         angle = target;
         phase = 'landed';
@@ -165,13 +192,27 @@
     phase = 'settling';
   }
 
-  // Released / pointer left or cancelled before it stopped → back to a full spin
-  // (or, when reduced, just reset the hold). A no-op once landed.
+  // Released / pointer left or cancelled before it stopped. If the settle is nearly
+  // done (past SNAP_THRESHOLD), snap to the result and land — no point making the
+  // player hold again for the last sliver. Otherwise it speeds back up to a full
+  // spin (or, when reduced, just resets the hold). A no-op once landed.
   function releaseHold() {
     if (phase !== 'settling') return;
+
+    // Snap-to-finish on a late release (motion path only — reduced mode has no
+    // in-flight progress to measure, so it keeps the original reset behaviour).
+    if (!reduced && (performance.now() - holdStart) / SETTLE_MS >= SNAP_THRESHOLD) {
+      angle = target;
+      phase = 'landed';
+      landed = true;
+      settleProgress = 1;
+      return;
+    }
+
     clearTimeout(holdTimer);
     holdTimer = null;
     phase = 'spinning';
+    settleProgress = 0;
   }
 
   // Keyboard parity: hold Space/Enter to spin down. `repeat` is ignored so the
@@ -230,7 +271,7 @@
       <g transform={`rotate(${angle} ${CX} ${CY})`}>
         {#each wedges as w}
           <path
-            class="wedge {w.isImpostor ? 'seg-impostor' : 'seg-crewmate'}"
+            class="wedge seg-{w.kind}"
             d={w.d}
           />
         {/each}
@@ -254,12 +295,27 @@
   </button>
 
   {#if !landed}
+    <!-- Loading bar: fills as the held wheel slows, empties on release — a clear
+         "how long until it stops" cue, mirroring the envelope reveal's hold bar. -->
+    <div class="progress">
+      <span class="progress-fill" style="width: {settleProgress * 100}%"></span>
+    </div>
     <p class="prompt">Press and hold to spin — let go and it speeds back up!</p>
   {:else}
     <!-- Detail card: leads with the unambiguous role, then the info the player
-         needs. Colours come from --accent / --error so Grayscale neutralises. -->
-    <div class="result" class:result-impostor={isImpostor} class:result-crewmate={!isImpostor}>
-      {#if isImpostor}
+         needs. Colours come from --accent / --error / --jester so Grayscale
+         neutralises them together. -->
+    <div
+      class="result"
+      class:result-impostor={isImpostor}
+      class:result-jester={isJester}
+      class:result-crewmate={!isImpostor && !isJester}
+    >
+      {#if isJester}
+        <p class="result-title">🃏 You're the JESTER!</p>
+        <p class="result-key">The word is "{word}"</p>
+        <p class="result-sub">You win by getting voted out — act like the imposter!</p>
+      {:else if isImpostor}
         <p class="result-title">🎭 You're the IMPOSTER!</p>
         {#if showHint}
           {#if cleanHint}
@@ -339,6 +395,9 @@
   .seg-impostor {
     fill: var(--error);
   }
+  .seg-jester {
+    fill: var(--jester);
+  }
 
   /* White labels read on both fills (and on gray). */
   .seg-label {
@@ -360,6 +419,25 @@
     margin: 0;
     color: var(--text-muted);
     font-weight: 600;
+  }
+
+  /* Loading bar under the wheel: width is driven inline by settleProgress (0→1),
+     so it fills while holding and empties on release. Same look as the envelope
+     reveal's hold bar. */
+  .progress {
+    width: 100%;
+    max-width: 300px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--bg);
+    overflow: hidden;
+  }
+  .progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--accent);
+    transition: width 80ms linear;
   }
 
   /* Detail card — same token-driven colour scheme as the other reveal styles. */
@@ -385,6 +463,13 @@
   }
   .result-impostor .result-title {
     color: var(--error);
+  }
+  .result-jester {
+    border: 2px solid var(--jester);
+  }
+  .result-jester .result-title,
+  .result-jester .result-key {
+    color: var(--jester);
   }
 
   .result-title {

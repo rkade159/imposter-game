@@ -12,6 +12,7 @@
     DEFAULT_PLAYERS,
     MIN_IMPOSTORS,
     DEFAULT_IMPOSTORS,
+    JESTER_MIN_PLAYERS,
   } from '../lib/config.js';
   import {
     WORD_SOURCES,
@@ -22,10 +23,12 @@
   } from '../lib/word-source.js';
   import Stepper from '../components/Stepper.svelte';
   import SettingsScreen from './SettingsScreen.svelte';
+  import RolesScreen from './RolesScreen.svelte';
   import CustomListBuilder from './CustomListBuilder.svelte';
   import Modal from '../components/Modal.svelte';
   import { sessionSettings } from '../lib/session-settings.js';
   import { settings } from '../lib/settings.js';
+  import { rolesConfig } from '../lib/roles-config.js';
   import { trollState } from '../lib/troll-state.js';
   import { rollTroll, buildTrollHints } from '../lib/troll-mode.js';
 
@@ -34,6 +37,10 @@
   // form state below survives opening and closing Settings — see the note on
   // remount-on-return where `saved` is read.
   let showSettings = false;
+
+  // Same in-place-panel pattern for the Roles screen (top-left button), where the
+  // optional Jester role is toggled.
+  let showRoles = false;
 
   // Whether the Custom List builder is showing in place of the setup form (same
   // in-place-panel pattern as Settings). `customSelection` holds the word strings
@@ -79,9 +86,30 @@
   let words = [];
   let loadStatus = 'loading'; // 'loading' | 'loaded' | 'error'
 
+  // Whether the Jester role actually applies to this round: the toggle is on AND
+  // there are enough players for it (1 jester + ≥1 imposter + ≥1 crewmate). Read
+  // by the imposter-count cap below and passed to startGame().
+  $: jesterActive =
+    $rolesConfig.jesterEnabled &&
+    typeof players === 'number' &&
+    players >= JESTER_MIN_PLAYERS;
+
+  // Auto-off guard: if the player count drops below the jester minimum while the
+  // toggle is on, turn it off (it must be re-enabled deliberately). Guarded so it
+  // only writes when needed. Inert while MIN_PLAYERS is 3, but correct/future-proof.
+  $: if (
+    typeof players === 'number' &&
+    players < JESTER_MIN_PLAYERS &&
+    $rolesConfig.jesterEnabled
+  ) {
+    $rolesConfig.jesterEnabled = false;
+  }
+
   // Max impostors depends on the live player count — always leave at least one
-  // crewmate. Falls back to MIN_IMPOSTORS while the player field is empty.
-  $: maxImpostors = typeof players === 'number' ? players - 1 : MIN_IMPOSTORS;
+  // crewmate, and one more slot for the jester when it's active. Falls back to
+  // MIN_IMPOSTORS while the player field is empty.
+  $: maxImpostors =
+    typeof players === 'number' ? players - (jesterActive ? 2 : 1) : MIN_IMPOSTORS;
 
   // Keep impostors in range when the player count drops. Guarded so it only
   // assigns when actually out of range — otherwise it would loop forever.
@@ -208,6 +236,9 @@
       hint: entry.hint ?? null,
       names,
       trollHints: isTroll ? buildTrollHints(words, players) : null,
+      // Jester only applies when the toggle is on and the table is big enough;
+      // startGame() drops it anyway on a troll round (troll wins).
+      jesterEnabled: jesterActive,
     });
   }
 </script>
@@ -228,14 +259,30 @@
     onClose={() => (showSettings = false)}
     impostorCount={impostors}
   />
+{:else if showRoles}
+  <!-- Pass the live player count so Roles can disable the Jester toggle below the
+       minimum table size. -->
+  <RolesScreen
+    onClose={() => (showRoles = false)}
+    playerCount={players}
+  />
 {:else}
 <!-- Pick counts + word source, then press Start to begin the round. -->
 <section class="screen">
-  <button
-    type="button"
-    class="settings-btn"
-    on:click={() => (showSettings = true)}
-  >⚙ Settings</button>
+  <!-- Header row: Roles entry on the left, Settings on the right. -->
+  <div class="header-row">
+    <button
+      type="button"
+      class="nav-btn"
+      on:click={() => (showRoles = true)}
+    >🃏 Roles</button>
+
+    <button
+      type="button"
+      class="nav-btn"
+      on:click={() => (showSettings = true)}
+    >⚙ Settings</button>
+  </div>
 
   <Stepper
     label="Total Players:"
@@ -322,9 +369,15 @@
     gap: 20px;
   }
 
-  /* Settings entry — a small ghost button in the top-right of the form. */
-  .settings-btn {
-    align-self: flex-end;
+  /* Top navigation row: Roles (left) and Settings (right) across the form's top. */
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Settings / Roles entries — small ghost buttons that bookend the header row. */
+  .nav-btn {
     min-height: 40px;
     padding: 0 14px;
     border-radius: 8px;

@@ -19,6 +19,7 @@
   --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
+  --jester: #f0a8d8; /* light pink — the optional Jester role (reveal, banner, wheel) */
 
   color-scheme: dark;
 }
@@ -45,6 +46,7 @@
   --bg: #101010;
   --accent: #a8a8a8;
   --error: #a8a8a8;
+  --jester: #a8a8a8; /* pinned to the same gray so the jester is no tell either */
 }
 
 :root.grayscale .app-shell {

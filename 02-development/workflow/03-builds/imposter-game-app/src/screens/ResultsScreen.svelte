@@ -25,6 +25,15 @@
       ? `The imposters were ${impostorList}`
       : `The imposter was ${impostorList}`;
 
+  // The jester (when one was in play this round): find the role flagged isJester
+  // and surface that player's name. Verbal win — the app just names them; the
+  // table already knows if they pulled off being voted out.
+  $: jesterIndex = $gameState.hasJester
+    ? $gameState.roles.findIndex((role) => role.isJester)
+    : -1;
+  $: jesterName =
+    jesterIndex >= 0 ? displayName($gameState.names, jesterIndex) : '';
+
   // The hint the imposter(s) saw this round, surfaced for everyone. Trimmed to a
   // string; an empty result (null / blank / non-string) falls back to an error
   // message instead of a hint.
@@ -34,6 +43,9 @@
 <section class="screen">
   <p class="title">Results</p>
   <p class="impostors">{heading}</p>
+  {#if jesterName}
+    <p class="jester">The jester was {jesterName}</p>
+  {/if}
   <p class="word">The word was "{$gameState.word}"</p>
   {#if hint}
     <p class="hint">The imposter's hint was "{hint}"</p>
@@ -71,6 +83,15 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--error);
+  }
+
+  /* The jester reveal (only shown on a jester round) — light pink, echoing the
+     jester reveal card. */
+  .jester {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--jester);
   }
 
   .word {
