@@ -17,6 +17,7 @@
   import { gameState, revealDone, displayName } from '../lib/game-state.js';
   import { settings } from '../lib/settings.js';
   import WheelReveal from '../components/WheelReveal.svelte';
+  import CardGridReveal from '../components/CardGridReveal.svelte';
 
   // Which reveal style to use, from the persisted Settings store. Anything other
   // than a style we recognise falls back to the original tap-to-reveal, so an
@@ -249,6 +250,19 @@
   {:else if revealStyle === 'wheel'}
     <!-- ============ Wheel of Fate (hold to spin & stop) ============ -->
     <WheelReveal
+      {isImpostor}
+      {isJester}
+      hasJester={$gameState.hasJester}
+      word={$gameState.word}
+      {hint}
+      {showHint}
+      {fellowImposters}
+      {advanceLabel}
+      onDone={revealDone}
+    />
+  {:else if revealStyle === 'card-grid'}
+    <!-- ============ Choose a Card (tap one of nine to flip it) ============ -->
+    <CardGridReveal
       {isImpostor}
       {isJester}
       hasJester={$gameState.hasJester}
