@@ -13,6 +13,7 @@
     MIN_IMPOSTORS,
     DEFAULT_IMPOSTORS,
     JESTER_MIN_PLAYERS,
+    PROSECUTOR_MIN_PLAYERS,
   } from '../lib/config.js';
   import {
     WORD_SOURCES,
@@ -103,6 +104,26 @@
     $rolesConfig.jesterEnabled
   ) {
     $rolesConfig.jesterEnabled = false;
+  }
+
+  // Whether the Prosecutor role applies this round: the toggle is on AND there are
+  // enough players. The Prosecutor occupies an existing imposter slot (it doesn't add
+  // one), so — unlike the jester — it does NOT affect maxImpostors: today's cap already
+  // leaves at least one crewmate-type for it to target. Passed to startGame() below.
+  $: prosecutorActive =
+    $rolesConfig.prosecutorEnabled &&
+    typeof players === 'number' &&
+    players >= PROSECUTOR_MIN_PLAYERS;
+
+  // Auto-off guard mirroring the jester's: if the player count drops below the
+  // prosecutor minimum while the toggle is on, turn it off. Guarded so it only writes
+  // when needed. Inert while MIN_PLAYERS is 3, but correct/future-proof.
+  $: if (
+    typeof players === 'number' &&
+    players < PROSECUTOR_MIN_PLAYERS &&
+    $rolesConfig.prosecutorEnabled
+  ) {
+    $rolesConfig.prosecutorEnabled = false;
   }
 
   // Max impostors depends on the live player count — always leave at least one
@@ -239,6 +260,8 @@
       // Jester only applies when the toggle is on and the table is big enough;
       // startGame() drops it anyway on a troll round (troll wins).
       jesterEnabled: jesterActive,
+      // Prosecutor: same gating; startGame() drops it on a troll round too.
+      prosecutorEnabled: prosecutorActive,
     });
   }
 </script>

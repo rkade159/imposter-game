@@ -99,6 +99,16 @@
   // as its own role. isImpostor is false for the jester, so every reveal style must
   // check isJester BEFORE the imposter/crewmate split or it renders as a crewmate.
   $: isJester = role?.isJester === true;
+  // The Prosecutor (an optional role): an imposter (isImpostor:true) given a secret
+  // target to get voted out. Checked BEFORE the imposter branch in every reveal style,
+  // or it renders as a plain imposter. prosecutorTargetName is the name (or "Player N"
+  // fallback) of the player they've been told to vote out — read straight from the
+  // role's targetIndex, assigned once in buildRoles().
+  $: isProsecutor = role?.isProsecutor === true;
+  $: prosecutorTargetName =
+    isProsecutor && typeof role?.targetIndex === 'number'
+      ? displayName($gameState.names, role.targetIndex)
+      : '';
   $: playerNumber = $gameState.revealIndex + 1;
   // The current player's name (or "Player N" fallback) for the progress tag.
   $: playerName = displayName($gameState.names, $gameState.revealIndex);
@@ -193,7 +203,8 @@
              Grayscale mode collapses the two roles to the same gray. -->
         <span
           class="note"
-          class:note-impostor={isImpostor}
+          class:note-impostor={isImpostor && !isProsecutor}
+          class:note-prosecutor={isProsecutor}
           class:note-jester={isJester}
           class:note-crewmate={!isImpostor && !isJester}
         >
@@ -204,6 +215,21 @@
             <span class="note-sub">
               You know the word — but you WIN by getting voted out. Act like the imposter!
             </span>
+          {:else if isProsecutor}
+            <!-- Prosecutor: an imposter with a secret target. Checked before the imposter
+                 branch (it has isImpostor:true). Gets the hint like any imposter. -->
+            <span class="note-title">🔨 YOU ARE THE PROSECUTOR!</span>
+            <span class="note-sub note-target">Get <strong>{prosecutorTargetName}</strong> voted out to win the round!</span>
+            {#if showHint}
+              {#if hint}
+                <span class="note-hint">Your hint: "{hint}"</span>
+              {:else}
+                <span class="note-hint">An error occurred.</span>
+              {/if}
+            {/if}
+            {#if fellowImposters.length}
+              <span class="note-sub">Your fellow imposters: {fellowImposters.join(', ')}</span>
+            {/if}
           {:else if isImpostor}
             <span class="note-title">🎭 YOU ARE THE IMPOSTER!</span>
             {#if showHint}
@@ -253,6 +279,8 @@
     <WheelReveal
       {isImpostor}
       {isJester}
+      {isProsecutor}
+      {prosecutorTargetName}
       hasJester={$gameState.hasJester}
       word={$gameState.word}
       {hint}
@@ -266,6 +294,8 @@
     <CardGridReveal
       {isImpostor}
       {isJester}
+      {isProsecutor}
+      {prosecutorTargetName}
       hasJester={$gameState.hasJester}
       word={$gameState.word}
       {hint}
@@ -279,6 +309,8 @@
     <PeekReveal
       {isImpostor}
       {isJester}
+      {isProsecutor}
+      {prosecutorTargetName}
       word={$gameState.word}
       {hint}
       {showHint}
@@ -301,6 +333,26 @@
         <p class="card-sub">
           You know the word — but you WIN by getting voted out. Act like the imposter!
         </p>
+      </div>
+      <button type="button" class="advance-btn" on:click={revealDone}>
+        {advanceLabel}
+      </button>
+    {:else if isProsecutor}
+      <!-- Prosecutor: an imposter with a secret target. Checked before the imposter
+           branch (it has isImpostor:true). Gets the hint like any imposter. -->
+      <div class="card card-prosecutor">
+        <p class="card-title">🔨 YOU ARE THE PROSECUTOR!</p>
+        <p class="card-sub card-target">Get <strong>{prosecutorTargetName}</strong> voted out to win the round!</p>
+        {#if showHint}
+          {#if hint}
+            <p class="card-hint">Your hint: "{hint}"</p>
+          {:else}
+            <p class="card-hint">An error occurred.</p>
+          {/if}
+        {/if}
+        {#if fellowImposters.length}
+          <p class="card-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
+        {/if}
       </div>
       <button type="button" class="advance-btn" on:click={revealDone}>
         {advanceLabel}
@@ -422,6 +474,20 @@
   .card-jester .card-word {
     color: var(--jester);
   }
+  /* Prosecutor card — gold, parallel to the other role cards. */
+  .card-prosecutor {
+    border: 2px solid var(--prosecutor);
+  }
+  .card-prosecutor .card-title {
+    color: var(--prosecutor);
+  }
+  /* The target instruction — the key info on the prosecutor card, so it's
+     emphasised (the target name itself is bolded inline). */
+  .card-target {
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
 
   .card-title {
     margin: 0;
@@ -541,6 +607,18 @@
   .note-jester .note-title,
   .note-jester .note-word {
     color: var(--jester);
+  }
+  /* Prosecutor note — gold, parallel to the other role notes. */
+  .note-prosecutor {
+    border-color: var(--prosecutor);
+  }
+  .note-prosecutor .note-title {
+    color: var(--prosecutor);
+  }
+  /* The target instruction — emphasised (the target name is bolded inline). */
+  .note-target {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .note-title {

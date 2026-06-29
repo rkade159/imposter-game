@@ -8,7 +8,7 @@
   // entries, NOT toggles. Only the optional Jester is a toggle, backed by the
   // persisted `rolesConfig` store (kept separate from Settings on purpose).
   import { rolesConfig } from '../lib/roles-config.js';
-  import { JESTER_MIN_PLAYERS } from '../lib/config.js';
+  import { JESTER_MIN_PLAYERS, PROSECUTOR_MIN_PLAYERS } from '../lib/config.js';
   import Toggle from '../components/Toggle.svelte';
 
   // Called when the user is done — the parent (SetupScreen) hides this screen.
@@ -19,6 +19,9 @@
   // (with a note) below the minimum. (Inert while MIN_PLAYERS is 3, but correct.)
   export let playerCount = null;
   $: jesterDisabled = !(playerCount >= JESTER_MIN_PLAYERS);
+  // The Prosecutor occupies one imposter slot and needs a crewmate-type to target,
+  // so it's disabled (with a note) below its minimum, same as the Jester.
+  $: prosecutorDisabled = !(playerCount >= PROSECUTOR_MIN_PLAYERS);
 </script>
 
 <section class="screen">
@@ -47,6 +50,20 @@
           : 'Knows the word like a crewmate, but wins by getting voted out — act like the imposter!'}
         disabled={jesterDisabled}
         bind:value={$rolesConfig.jesterEnabled}
+      />
+    </div>
+
+    <!-- The second optional role. Gold accent matches the reveal + results line. -->
+    <div class="role-toggle">
+      <span class="role-name role-prosecutor">🔨 Prosecutor</span>
+      <Toggle
+        id="role-prosecutor"
+        label="Enable the Prosecutor"
+        description={prosecutorDisabled
+          ? `A secret imposter who's told one player to get voted out — do it and they win! (Needs ${PROSECUTOR_MIN_PLAYERS}+ players.)`
+          : "A secret imposter who's told one player to get voted out — do it and they win the round!"}
+        disabled={prosecutorDisabled}
+        bind:value={$rolesConfig.prosecutorEnabled}
       />
     </div>
   </div>
@@ -112,6 +129,9 @@
   }
   .role-jester {
     color: var(--jester);
+  }
+  .role-prosecutor {
+    color: var(--prosecutor);
   }
 
   /* Secondary action — outlined "go back", matching SettingsScreen. */

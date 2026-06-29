@@ -50,6 +50,20 @@
   $: jesterName =
     jesterIndex >= 0 ? displayName($gameState.names, jesterIndex) : '';
 
+  // The prosecutor (when one was in play): find the isProsecutor role, name that player,
+  // and name the player they were told to vote out (their targetIndex). Both are shown so
+  // the table gets the full story — and can see whether the prosecutor pulled it off.
+  $: prosecutorIndex = $gameState.hasProsecutor
+    ? $gameState.roles.findIndex((role) => role.isProsecutor)
+    : -1;
+  $: prosecutorName =
+    prosecutorIndex >= 0 ? displayName($gameState.names, prosecutorIndex) : '';
+  $: prosecutorTargetName =
+    prosecutorIndex >= 0 &&
+    typeof $gameState.roles[prosecutorIndex].targetIndex === 'number'
+      ? displayName($gameState.names, $gameState.roles[prosecutorIndex].targetIndex)
+      : '';
+
   // The hint the imposter(s) saw this round, surfaced for everyone. Trimmed to a
   // string; an empty result (null / blank / non-string) falls back to an error
   // message instead of a hint.
@@ -65,6 +79,9 @@
     <p class="impostors">{heading}</p>
     {#if jesterName}
       <p class="jester">The jester was {jesterName}</p>
+    {/if}
+    {#if prosecutorName}
+      <p class="prosecutor">The prosecutor was {prosecutorName} — their target was {prosecutorTargetName}</p>
     {/if}
     <p class="word">The word was "{$gameState.word}"</p>
     {#if hint}
@@ -113,6 +130,15 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--jester);
+  }
+
+  /* The prosecutor reveal (only shown on a prosecutor round) — gold, echoing the
+     prosecutor reveal card. Names both the prosecutor and their target. */
+  .prosecutor {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--prosecutor);
   }
 
   .word {

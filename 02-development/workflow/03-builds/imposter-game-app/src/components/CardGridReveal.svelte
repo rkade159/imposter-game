@@ -24,6 +24,12 @@
   // the non-chosen cards (the jester is announced, so this is no leak); when false,
   // a jester card never appears (mirrors the wheel's segment gating).
   export let hasJester = false;
+  // The optional Prosecutor role: an imposter (isImpostor true) with a secret target.
+  // The landing theatre stays the imposter face (kind below is 'impostor' for them) —
+  // only the detail card is prosecutor-specific. prosecutorTargetName is the player
+  // they've been told to vote out, already resolved to a display name by RevealScreen.
+  export let isProsecutor = false;
+  export let prosecutorTargetName = '';
   export let word;
   export let hint = '';
   // Whether to show the imposter's hint. Gated by RevealScreen on the "Imposter
@@ -151,7 +157,8 @@
          --accent / --error / --jester so Grayscale neutralises them together. -->
     <div
       class="result"
-      class:result-impostor={isImpostor}
+      class:result-impostor={isImpostor && !isProsecutor}
+      class:result-prosecutor={isProsecutor}
       class:result-jester={isJester}
       class:result-crewmate={!isImpostor && !isJester}
     >
@@ -159,6 +166,19 @@
         <p class="result-title">🃏 You're the JESTER!</p>
         <p class="result-key">The word is "{word}"</p>
         <p class="result-sub">You win by getting voted out — act like the imposter!</p>
+      {:else if isProsecutor}
+        <p class="result-title">🔨 You're the PROSECUTOR!</p>
+        <p class="result-sub result-target">Get <strong>{prosecutorTargetName}</strong> voted out to win the round!</p>
+        {#if showHint}
+          {#if cleanHint}
+            <p class="result-key">Your hint: "{cleanHint}"</p>
+          {:else}
+            <p class="result-key">An error occurred.</p>
+          {/if}
+        {/if}
+        {#if fellowImposters.length}
+          <p class="result-sub">Your fellow imposters: {fellowImposters.join(', ')}</p>
+        {/if}
       {:else if isImpostor}
         <p class="result-title">🎭 You're the IMPOSTER!</p>
         {#if showHint}
@@ -351,6 +371,18 @@
   .result-jester .result-title,
   .result-jester .result-key {
     color: var(--jester);
+  }
+  /* Prosecutor detail card — gold, parallel to the other role cards. */
+  .result-prosecutor {
+    border: 2px solid var(--prosecutor);
+  }
+  .result-prosecutor .result-title {
+    color: var(--prosecutor);
+  }
+  /* The target instruction — emphasised (the target name is bolded inline). */
+  .result-target {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .result-title {

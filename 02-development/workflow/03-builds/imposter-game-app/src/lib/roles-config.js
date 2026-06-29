@@ -18,6 +18,12 @@ const defaults = {
   // crewmate, but wins by getting voted out). Off by default. Only takes effect on
   // a non-troll round with enough players — see JESTER_MIN_PLAYERS / startGame().
   jesterEnabled: false,
+  // Prosecutor: when on, ONE of the round's imposters becomes the Prosecutor — an
+  // imposter (gets the hint, not the word) who is secretly told one crewmate-type
+  // player to get voted out to win. Occupies an existing imposter slot, doesn't add
+  // one. Off by default. Only on a non-troll round with enough players — see
+  // PROSECUTOR_MIN_PLAYERS / startGame().
+  prosecutorEnabled: false,
 };
 
 function load() {

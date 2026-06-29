@@ -18,7 +18,8 @@ const initial = {
   names: [], // names[i] = the custom name typed for player i ('' = use "Player i+1")
   isTroll: false, // Troll Mode round: everyone is an imposter (see startGame / troll-mode.js)
   hasJester: false, // Jester round: one player is the Jester (see startGame / roles-config.js)
-  roles: [], // roles[i] = { isImpostor[, isJester][, hint] } for player i; filled in by startGame()
+  hasProsecutor: false, // Prosecutor round: one imposter is the Prosecutor (see startGame / roles-config.js)
+  roles: [], // roles[i] = { isImpostor[, isProsecutor, targetIndex][, isJester][, hint] } for player i; filled in by startGame()
   revealIndex: 0, // which player is currently revealing
 };
 
@@ -38,21 +39,49 @@ export function displayName(names, i) {
 // gameState.word; impostors "get the hint" by reading gameState.hint — so only the
 // role flags are stored per entry. The jester is NOT an imposter (isImpostor:false)
 // but reveals as its own role, so reveal/results check isJester before the split.
-function buildRoles(playerCount, impostorCount, hasJester = false) {
+//
+// hasProsecutor: when on, ONE of the impostorCount imposters is the Prosecutor — it
+// OCCUPIES an existing imposter slot (still isImpostor:true), it does not add one. The
+// Prosecutor is told a secret target to get voted out; that target is picked AFTER the
+// shuffle (below) from the crewmate-type players (anyone with isImpostor:false, i.e.
+// crewmates and the jester), so it's never a fellow imposter and never the prosecutor.
+// reveal/results check isProsecutor before the imposter split.
+function buildRoles(playerCount, impostorCount, hasJester = false, hasProsecutor = false) {
   const roles = [];
   // Lay out imposters first, then the single jester (when on), then crewmates fill
   // the rest — the shuffle below scatters them, so the order here is just bookkeeping.
+  // The first imposter is flagged as the prosecutor when on (the shuffle randomises
+  // which player ends up with it, just like every other role).
   const jesterCount = hasJester ? 1 : 0;
   for (let i = 0; i < playerCount; i++) {
     if (i < impostorCount) {
-      roles.push({ isImpostor: true });
+      roles.push(hasProsecutor && i === 0 ? { isImpostor: true, isProsecutor: true } : { isImpostor: true });
     } else if (i < impostorCount + jesterCount) {
       roles.push({ isImpostor: false, isJester: true });
     } else {
       roles.push({ isImpostor: false });
     }
   }
-  return shuffle(roles);
+  const shuffled = shuffle(roles);
+
+  // Assign the Prosecutor's target now that positions are final. The pool is every
+  // crewmate-type player (isImpostor:false → plain crewmates AND the jester); this
+  // excludes the prosecutor and every fellow imposter by construction. Defensive: if
+  // the pool is somehow empty, drop the prosecutor flag rather than throw (in practice
+  // the imposter cap always leaves at least one crewmate-type).
+  if (hasProsecutor) {
+    const prosecutorIdx = shuffled.findIndex((r) => r.isProsecutor);
+    const targetPool = shuffled
+      .map((r, i) => (r.isImpostor ? -1 : i))
+      .filter((i) => i >= 0);
+    if (prosecutorIdx >= 0 && targetPool.length > 0) {
+      shuffled[prosecutorIdx].targetIndex =
+        targetPool[Math.floor(Math.random() * targetPool.length)];
+    } else if (prosecutorIdx >= 0) {
+      delete shuffled[prosecutorIdx].isProsecutor;
+    }
+  }
+  return shuffled;
 }
 
 // Start a round: commit the setup config, generate the roles, and move to the
@@ -67,9 +96,13 @@ function buildRoles(playerCount, impostorCount, hasJester = false) {
 // is the Jester. Troll Mode wins — on a troll round everyone is an imposter and the
 // jester is ignored (hasJester false, no banner). The persisted toggle lives in
 // roles-config.js; the setup screen only passes it on when the player count allows.
-export function startGame({ playerCount, impostorCount, wordSource, word, hint, names, trollHints = null, jesterEnabled = false }) {
+// prosecutorEnabled (Prosecutor role): when true AND this is not a troll round, one of
+// the imposters is the Prosecutor (see buildRoles). Troll wins here too — no prosecutor
+// on a troll round. Same persistence/gating story as the jester.
+export function startGame({ playerCount, impostorCount, wordSource, word, hint, names, trollHints = null, jesterEnabled = false, prosecutorEnabled = false }) {
   const isTroll = Array.isArray(trollHints) && trollHints.length > 0;
   const hasJester = jesterEnabled && !isTroll;
+  const hasProsecutor = prosecutorEnabled && !isTroll;
   gameState.set({
     screen: 'reveal',
     playerCount,
@@ -80,9 +113,10 @@ export function startGame({ playerCount, impostorCount, wordSource, word, hint, 
     names: names ?? [], // custom player names; screens fall back via displayName()
     isTroll,
     hasJester, // drives the "a jester is in play" banner + the results reveal
+    hasProsecutor, // drives the prosecutor's results reveal (no in-round banner — it's hidden)
     roles: isTroll
       ? trollHints.map((playerHint) => ({ isImpostor: true, hint: playerHint }))
-      : buildRoles(playerCount, impostorCount, hasJester),
+      : buildRoles(playerCount, impostorCount, hasJester, hasProsecutor),
     revealIndex: 0,
   });
 }
