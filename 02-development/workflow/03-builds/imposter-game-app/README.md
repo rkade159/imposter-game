@@ -37,7 +37,7 @@ Or serve `dist/` with any static file server.
 | `src/lib/` | Shared logic modules (game state store, word source, shuffle helpers). |
 | `src/screens/` | Top-level screen components driven by the screen state machine (setup, reveal, pass, discussion, results). |
 | `src/components/` | Reusable UI building blocks shared across screens. |
-| `public/data/` | Static `{ word, hint }` JSON decks shipped alongside the app, fetched at runtime. |
+| `public/data/` | Static `{ word, hint }` JSON decks shipped alongside the app, fetched at runtime — Common Nouns plus the Islam, Movies/Shows, Anime and Maths topic decks. (The "All Words" source has no file of its own; it merges and de-dupes these at load time.) |
 | `public/icons/` | App icons referenced from the PWA manifest. |
 | `android/` | Generated Capacitor Android project (for the Play Store build). Don't hand-edit web code here — it's synced from `dist/`. |
 | `resources/` | Placeholder source icon/splash for Android asset generation. |

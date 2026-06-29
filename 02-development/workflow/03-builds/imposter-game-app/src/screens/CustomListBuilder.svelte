@@ -1,6 +1,6 @@
 <script>
-  // Custom List builder: lets the user hand-pick which words from the Common
-  // Nouns deck are eligible for this round. Rendered in place of the setup form
+  // Custom List builder: lets the user hand-pick which words from the All Words
+  // deck (every topic deck merged) are eligible for this round. Rendered in place of the setup form
   // (the same in-place-panel pattern SettingsScreen uses), so SetupScreen stays
   // mounted underneath and its in-flight form state survives the round trip.
   //
@@ -19,9 +19,9 @@
   // Called when the user leaves without confirming (Back/Exit).
   export let onExit;
 
-  // The full Common Nouns deck ({ word, hint }[]) and its load state. The custom
-  // source has no file of its own, so we load the real Common Nouns deck and let
-  // the user carve a subset out of it.
+  // The full All Words deck ({ word, hint }[]) and its load state. The custom
+  // source has no file of its own, so we load the merged All Words deck and let
+  // the user carve a subset out of it (any word from any topic deck is eligible).
   let all = [];
   let status = 'loading'; // 'loading' | 'loaded' | 'error'
 
@@ -32,7 +32,7 @@
 
   onMount(async () => {
     try {
-      all = await loadWords('common-nouns');
+      all = await loadWords('all-words');
       status = 'loaded';
     } catch (error) {
       status = 'error';
