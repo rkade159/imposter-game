@@ -28,6 +28,11 @@
   // is the player they've been told to vote out, already resolved by RevealScreen.
   export let isProsecutor = false;
   export let prosecutorTargetName = '';
+  // The optional Lawyer role: a crewmate (isImpostor false) secretly assigned a client to
+  // protect. It is NOT its own wheel kind — the Lawyer lands as a crewmate and the detail
+  // card appends a note. lawyerClientName is the client, already resolved by RevealScreen.
+  export let isLawyer = false;
+  export let lawyerClientName = '';
   export let word;
   export let hint = '';
   // Whether to show the imposter's hint. Gated by RevealScreen on the "Imposter
@@ -356,6 +361,10 @@
         <p class="result-title">📝 You're a CREWMATE</p>
         <p class="result-key">The word is "{word}"</p>
         <p class="result-sub">You know the word. Help identify the imposters!</p>
+        {#if isLawyer}
+          <!-- Lawyer note appended to the crewmate card — never says the client is an imposter. -->
+          <p class="result-sub result-lawyer">⚖️ You're also the <strong>LAWYER</strong>. Your client is <strong>{lawyerClientName}</strong> — keep them from being voted out. If your client survives, you win.</p>
+        {/if}
       {/if}
     </div>
 
@@ -501,6 +510,11 @@
   /* The target instruction — emphasised (the target name is bolded inline). */
   .result-target {
     color: var(--text);
+    font-weight: 600;
+  }
+  /* The lawyer note appended to the crewmate detail card — teal (client bolded inline). */
+  .result-lawyer {
+    color: var(--lawyer);
     font-weight: 600;
   }
 

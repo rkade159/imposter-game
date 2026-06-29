@@ -24,6 +24,13 @@ const defaults = {
   // one. Off by default. Only on a non-troll round with enough players — see
   // PROSECUTOR_MIN_PLAYERS / startGame().
   prosecutorEnabled: false,
+  // Lawyer: the mirror of the Prosecutor. When on, ONE crewmate becomes the Lawyer —
+  // a crewmate (gets the word like any crewmate) secretly assigned one imposter-aligned
+  // "client" (a plain imposter OR the Prosecutor) to protect; they win WITH the imposters
+  // if their client is NOT voted out. The Lawyer is never told the client is an imposter.
+  // Occupies an existing crewmate slot, doesn't add one. Off by default. Only on a
+  // non-troll round with enough players — see LAWYER_MIN_PLAYERS / startGame().
+  lawyerEnabled: false,
 };
 
 function load() {

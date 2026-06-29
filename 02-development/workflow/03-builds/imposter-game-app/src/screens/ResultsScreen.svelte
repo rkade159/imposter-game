@@ -64,6 +64,21 @@
       ? displayName($gameState.names, $gameState.roles[prosecutorIndex].targetIndex)
       : '';
 
+  // The lawyer (when one was in play): find the isLawyer role, name that player, and name
+  // their secret "client" (clientIndex). Mirror of the prosecutor reveal above — both are
+  // shown so the table gets the full story. No win is computed (no voting screen); the
+  // table resolves the lawyer's outcome verbally, like the jester/prosecutor.
+  $: lawyerIndex = $gameState.hasLawyer
+    ? $gameState.roles.findIndex((role) => role.isLawyer)
+    : -1;
+  $: lawyerName =
+    lawyerIndex >= 0 ? displayName($gameState.names, lawyerIndex) : '';
+  $: lawyerClientName =
+    lawyerIndex >= 0 &&
+    typeof $gameState.roles[lawyerIndex].clientIndex === 'number'
+      ? displayName($gameState.names, $gameState.roles[lawyerIndex].clientIndex)
+      : '';
+
   // The hint the imposter(s) saw this round, surfaced for everyone. Trimmed to a
   // string; an empty result (null / blank / non-string) falls back to an error
   // message instead of a hint.
@@ -82,6 +97,9 @@
     {/if}
     {#if prosecutorName}
       <p class="prosecutor">The prosecutor was {prosecutorName} — their target was {prosecutorTargetName}</p>
+    {/if}
+    {#if lawyerName}
+      <p class="lawyer">The lawyer was {lawyerName} — their client was {lawyerClientName}</p>
     {/if}
     <p class="word">The word was "{$gameState.word}"</p>
     {#if hint}
@@ -139,6 +157,15 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--prosecutor);
+  }
+
+  /* The lawyer reveal (only shown on a lawyer round) — teal, echoing the lawyer
+     reveal note. Names both the lawyer and their client. */
+  .lawyer {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--lawyer);
   }
 
   .word {

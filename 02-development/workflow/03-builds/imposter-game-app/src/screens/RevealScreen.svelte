@@ -109,6 +109,17 @@
     isProsecutor && typeof role?.targetIndex === 'number'
       ? displayName($gameState.names, role.targetIndex)
       : '';
+  // The Lawyer (an optional role): a crewmate (isImpostor:false) secretly assigned an
+  // imposter-aligned "client" to protect. UNLIKE the prosecutor it is NOT a separate
+  // reveal branch — the Lawyer reveals as a crewmate (sees the word) with an added note,
+  // so every style just appends the note inside its crewmate rendering. lawyerClientName
+  // is the name (or "Player N" fallback) of the client, read from the role's clientIndex
+  // (assigned once in buildRoles()). The note never says the client is an imposter.
+  $: isLawyer = role?.isLawyer === true;
+  $: lawyerClientName =
+    isLawyer && typeof role?.clientIndex === 'number'
+      ? displayName($gameState.names, role.clientIndex)
+      : '';
   $: playerNumber = $gameState.revealIndex + 1;
   // The current player's name (or "Player N" fallback) for the progress tag.
   $: playerName = displayName($gameState.names, $gameState.revealIndex);
@@ -251,6 +262,11 @@
             <span class="note-title">📝 THE WORD IS:</span>
             <span class="note-word">"{$gameState.word}"</span>
             <span class="note-sub">You know the word. Help identify the imposters!</span>
+            {#if isLawyer}
+              <!-- Lawyer note: appended to the crewmate card. Names the client and the
+                   goal only — never says the client is an imposter. -->
+              <span class="note-sub note-lawyer">⚖️ You're also the <strong>LAWYER</strong>. Your client is <strong>{lawyerClientName}</strong> — keep them from being voted out. If your client survives the round, you win.</span>
+            {/if}
           {/if}
         </span>
 
@@ -281,6 +297,8 @@
       {isJester}
       {isProsecutor}
       {prosecutorTargetName}
+      {isLawyer}
+      {lawyerClientName}
       hasJester={$gameState.hasJester}
       word={$gameState.word}
       {hint}
@@ -296,6 +314,8 @@
       {isJester}
       {isProsecutor}
       {prosecutorTargetName}
+      {isLawyer}
+      {lawyerClientName}
       hasJester={$gameState.hasJester}
       word={$gameState.word}
       {hint}
@@ -311,6 +331,8 @@
       {isJester}
       {isProsecutor}
       {prosecutorTargetName}
+      {isLawyer}
+      {lawyerClientName}
       word={$gameState.word}
       {hint}
       {showHint}
@@ -387,6 +409,11 @@
         <p class="card-title">📝 THE WORD IS:</p>
         <p class="card-word">"{$gameState.word}"</p>
         <p class="card-sub">You know the word. Help identify the imposters!</p>
+        {#if isLawyer}
+          <!-- Lawyer note: appended to the crewmate card. Names the client and the goal
+               only — never says the client is an imposter. -->
+          <p class="card-sub card-lawyer">⚖️ You're also the <strong>LAWYER</strong>. Your client is <strong>{lawyerClientName}</strong> — keep them from being voted out. If your client survives the round, you win.</p>
+        {/if}
       </div>
       <button type="button" class="advance-btn" on:click={revealDone}>
         {advanceLabel}
@@ -486,6 +513,12 @@
   .card-target {
     color: var(--text);
     font-size: 1.1rem;
+    font-weight: 600;
+  }
+  /* The lawyer note appended to the crewmate card — teal, so it reads as the
+     Lawyer's own line (the client name is bolded inline). */
+  .card-lawyer {
+    color: var(--lawyer);
     font-weight: 600;
   }
 
@@ -618,6 +651,11 @@
   /* The target instruction — emphasised (the target name is bolded inline). */
   .note-target {
     color: var(--text);
+    font-weight: 600;
+  }
+  /* The lawyer note appended to the crewmate note — teal, parallel to .card-lawyer. */
+  .note-lawyer {
+    color: var(--lawyer);
     font-weight: 600;
   }
 

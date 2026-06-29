@@ -21,6 +21,7 @@
   --error: #ef4444;
   --jester: #f0a8d8; /* light pink — the optional Jester role (reveal, banner, wheel) */
   --prosecutor: #e0b341; /* gold — the optional Prosecutor role (reveal + results); distinct from imposter red and jester pink */
+  --lawyer: #2dd4bf; /* teal — the optional Lawyer role (reveal note + results); distinct from imposter red, jester pink and prosecutor gold */
 
   color-scheme: dark;
 }
@@ -49,6 +50,7 @@
   --error: #a8a8a8;
   --jester: #a8a8a8; /* pinned to the same gray so the jester is no tell either */
   --prosecutor: #a8a8a8; /* pinned to the same gray so the prosecutor is no tell either */
+  --lawyer: #a8a8a8; /* pinned to the same gray so the lawyer is no tell either */
 }
 
 :root.grayscale .app-shell {

@@ -14,6 +14,7 @@
     DEFAULT_IMPOSTORS,
     JESTER_MIN_PLAYERS,
     PROSECUTOR_MIN_PLAYERS,
+    LAWYER_MIN_PLAYERS,
   } from '../lib/config.js';
   import {
     WORD_SOURCES,
@@ -124,6 +125,27 @@
     $rolesConfig.prosecutorEnabled
   ) {
     $rolesConfig.prosecutorEnabled = false;
+  }
+
+  // Whether the Lawyer role applies this round: the toggle is on AND there are enough
+  // players. Like the Prosecutor, the Lawyer occupies an existing crewmate slot (it
+  // doesn't add one), so it does NOT affect maxImpostors — today's cap already leaves at
+  // least one crewmate-type to be the Lawyer and at least one imposter to be its client.
+  // Passed to startGame() below.
+  $: lawyerActive =
+    $rolesConfig.lawyerEnabled &&
+    typeof players === 'number' &&
+    players >= LAWYER_MIN_PLAYERS;
+
+  // Auto-off guard mirroring the prosecutor's: if the player count drops below the lawyer
+  // minimum while the toggle is on, turn it off. Guarded so it only writes when needed.
+  // Inert while MIN_PLAYERS is 3, but correct/future-proof.
+  $: if (
+    typeof players === 'number' &&
+    players < LAWYER_MIN_PLAYERS &&
+    $rolesConfig.lawyerEnabled
+  ) {
+    $rolesConfig.lawyerEnabled = false;
   }
 
   // Max impostors depends on the live player count — always leave at least one
@@ -262,6 +284,8 @@
       jesterEnabled: jesterActive,
       // Prosecutor: same gating; startGame() drops it on a troll round too.
       prosecutorEnabled: prosecutorActive,
+      // Lawyer: same gating; startGame() drops it on a troll round too.
+      lawyerEnabled: lawyerActive,
     });
   }
 </script>

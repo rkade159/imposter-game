@@ -8,7 +8,7 @@
   // entries, NOT toggles. Only the optional Jester is a toggle, backed by the
   // persisted `rolesConfig` store (kept separate from Settings on purpose).
   import { rolesConfig } from '../lib/roles-config.js';
-  import { JESTER_MIN_PLAYERS, PROSECUTOR_MIN_PLAYERS } from '../lib/config.js';
+  import { JESTER_MIN_PLAYERS, PROSECUTOR_MIN_PLAYERS, LAWYER_MIN_PLAYERS } from '../lib/config.js';
   import Toggle from '../components/Toggle.svelte';
 
   // Called when the user is done — the parent (SetupScreen) hides this screen.
@@ -22,6 +22,9 @@
   // The Prosecutor occupies one imposter slot and needs a crewmate-type to target,
   // so it's disabled (with a note) below its minimum, same as the Jester.
   $: prosecutorDisabled = !(playerCount >= PROSECUTOR_MIN_PLAYERS);
+  // The Lawyer occupies one crewmate slot and needs an imposter-aligned player as its
+  // client, so it's disabled (with a note) below its minimum, same as the Prosecutor.
+  $: lawyerDisabled = !(playerCount >= LAWYER_MIN_PLAYERS);
 </script>
 
 <section class="screen">
@@ -64,6 +67,20 @@
           : "A secret imposter who's told one player to get voted out — do it and they win the round!"}
         disabled={prosecutorDisabled}
         bind:value={$rolesConfig.prosecutorEnabled}
+      />
+    </div>
+
+    <!-- The third optional role. Teal accent matches the reveal note + results line. -->
+    <div class="role-toggle">
+      <span class="role-name role-lawyer">⚖️ Lawyer</span>
+      <Toggle
+        id="role-lawyer"
+        label="Enable the Lawyer"
+        description={lawyerDisabled
+          ? `A secret crewmate assigned to defend one player — if their client survives, the lawyer wins! (Needs ${LAWYER_MIN_PLAYERS}+ players.)`
+          : 'A secret crewmate assigned to defend one player — if their client survives, the lawyer wins!'}
+        disabled={lawyerDisabled}
+        bind:value={$rolesConfig.lawyerEnabled}
       />
     </div>
   </div>
@@ -132,6 +149,9 @@
   }
   .role-prosecutor {
     color: var(--prosecutor);
+  }
+  .role-lawyer {
+    color: var(--lawyer);
   }
 
   /* Secondary action — outlined "go back", matching SettingsScreen. */

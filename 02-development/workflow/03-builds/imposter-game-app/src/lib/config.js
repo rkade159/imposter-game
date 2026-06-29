@@ -23,3 +23,10 @@ export const JESTER_MIN_PLAYERS = 3;
 // the table). Like JESTER_MIN_PLAYERS this gates the setup toggle; inert while
 // MIN_PLAYERS is 3, but kept correct/future-proof.
 export const PROSECUTOR_MIN_PLAYERS = 3;
+
+// Minimum players for the optional Lawyer role. The Lawyer is the mirror of the
+// Prosecutor: it occupies one existing CREWMATE slot (it does NOT add a player)
+// and needs at least one imposter-aligned player to be assigned as its secret
+// "client", so 3 is the floor (1 lawyer + ≥1 imposter + the table). Same gating
+// story as the Prosecutor; inert while MIN_PLAYERS is 3, but kept future-proof.
+export const LAWYER_MIN_PLAYERS = 3;
